@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "en",
+    "title": "DISC Analysis"
+  },
+  "codeGate": {
+    "heading": "Enter consultant code",
+    "button": "Continue",
+    "language": "Language",
+    "errorEmpty": "Please enter an access code.",
+    "errorInvalid": "Invalid code. Please check and try again."
+  },
+  "introForm": {
+    "heading": "Welcome to the DISC Analysis",
+    "date": "Date:",
+    "firstName": "First Name:",
+    "lastName": "Last Name:",
+    "gender": "Gender:",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "genderOther": "Other",
+    "email": "E-mail:",
+    "employment": "Employment:",
+    "employmentQuestion": "Is your DISC profile part of a potential employment process?",
+    "employmentYes": "Yes",
+    "employmentNo": "No",
+    "company": "Company:",
+    "consentHeading": "Consent for Data Processing",
+    "consentMainText": "I give consent for my personal data to be processed by Coachers ApS for the purpose of generating my DISC profile.",
+    "consentProcessingIntro": "The processing includes:",
+    "consentBullet1": "AI-based analysis via Anthropic (USA) for profile generation",
+    "consentBullet2": "Sharing my DISC profile with my assigned consultant",
+    "consentBullet3": "Sending PDF report via email",
+    "consentRetention": "My data is stored for 90 days (employment-related) or up to 24 months (other purposes) and can be deleted upon request.",
+    "consentTransfer": "Personal data is transferred to a third country (USA) based on the EU Commission's Standard Contractual Clauses.",
+    "consentPrivacyLink": "Read our full privacy policy here:",
+    "consentDownloadPdf": "Download PDF",
+    "consentAgeConfirm": "I confirm that I am at least 16 years old",
+    "consentWithdrawalTitle": "Withdrawal of Consent",
+    "consentWithdrawalText": "I can withdraw my consent at any time by contacting info@coachers.dk. Upon withdrawal, all personal data and responses will be deleted without undue delay, unless other legislation requires continued storage.",
+    "startButton": "Start the Analysis"
+  },
+  "validation": {
+    "date": "Date is missing.",
+    "firstName": "First name is missing.",
+    "lastName": "Last name is missing.",
+    "gender": "Gender is missing.",
+    "email": "E-mail is missing.",
+    "emailInvalid": "E-mail is invalid.",
+    "company": "Company is missing.",
+    "employment": "Employment is missing.",
+    "consent": "You must consent to data processing.",
+    "age": "You must confirm that you are at least 16 years old."
+  },
+  "prepScreen": {
+    "heading": "Good Advice",
+    "advice1": "Make sure you can concentrate without interruptions.",
+    "advice2": "Allow approximately 10-15 minutes to complete the analysis.",
+    "advice3": "Choose the answer that naturally comes to mind."
+  },
+  "survey": {
+    "hint": "Choose one that fits MOST and one that fits LEAST.",
+    "most": "MOST",
+    "least": "LEAST",
+    "questionOf": "QUESTION {n} OF {total}",
+    "errorSame": "MOST and LEAST cannot be the same statement.",
+    "errorBothRequired": "Choose both MOST and LEAST before continuing.",
+    "errorAllRequired": "All questions must have both MOST and LEAST, and they cannot be the same.",
+    "submitFail": "Could not submit the response ({err}). Please try again."
+  },
+  "buttons": {
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "finish": "Finish and Submit"
+  },
+  "thankYou": {
+    "heading": "Thank you for your response!",
+    "text": "Your DISC V2.2 response has been received and the report is being processed."
+  }
+}

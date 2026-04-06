@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DISC Profiltest</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --bg-light: #f8fafc;
+      --bg-card: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #101f36;
+      min-height: 100vh;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1170px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      text-align: left;
+      color: white;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .company-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+    }
+
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .profile-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+    }
+
+    .profile-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .profile-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text-dark);
+    }
+
+    .profile-description {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .profile-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .profile-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .start-btn {
+      display: block;
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 1rem;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .start-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .loading i {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .error {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .error i {
+      font-size: 3rem;
+      color: #ef4444;
+      margin-bottom: 1rem;
+    }
+
+    .error h2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .error p {
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Search and view controls */
+    .controls-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 2.75rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--bg-card);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .view-toggle {
+      display: flex;
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 0.25rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .view-btn {
+      padding: 0.625rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .view-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .view-btn:hover:not(.active) {
+      background: var(--bg-light);
+    }
+
+    /* List view styles */
+    .profiles-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .profile-list-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .profile-list-item:hover {
+      transform: translateX(4px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .profile-list-item .profile-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+      font-size: 1.25rem;
+    }
+
+    .profile-list-item .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-list-item .profile-name {
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-list-item .profile-description {
+      margin-bottom: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .profile-list-item .start-btn {
+      margin-top: 0;
+      width: auto;
+      padding: 0.625rem 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      color: var(--text-muted);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+    }
+
+    .footer a {
+      color: white;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div style="margin-bottom:12px;">
+        <img src="../assets/masterDisc_logo.png" alt="Master DISC" style="height:60px;">
+      </div>
+      <h1>DISC Profiltest</h1>
+      <p>Velkommen til din personlige DISC profilanalyse</p>
+      <div id="companyLogo" style="display: none; margin-top: 1.5rem;">
+        <img id="companyLogoImg" src="" alt="Company logo" style="max-height: 60px; max-width: 200px; object-fit: contain; background: white; padding: 8px; border-radius: 8px;" />
+      </div>
+      <div class="company-badge" id="companyBadge" style="display: none;">
+        <i class="fas fa-building"></i>
+        <span id="companyName">Virksomhed</span>
+      </div>
+    </div>
+
+    <div id="content">
+      <div class="loading">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <p>Indlaeser profiler...</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Powered by <a href="https://disclinedb.web.app">DISCline</a></p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-functions.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA54uIe0IyQXOxms9ZPI9nKedCXR_hU-nU",
+      authDomain: "disclinedb.firebaseapp.com",
+      projectId: "disclinedb",
+      storageBucket: "disclinedb.firebasestorage.app",
+      messagingSenderId: "282746414127",
+      appId: "1:282746414127:web:72df4cfe6c7a2461df12da"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const fns = getFunctions(app, "europe-west1");
+
+    const contentDiv = document.getElementById('content');
+    const companyBadge = document.getElementById('companyBadge');
+    const companyNameSpan = document.getElementById('companyName');
+
+    // Get company slug from URL
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const companySlug = pathParts.length > 1 ? pathParts[1] : null;
+
+    // State
+    let allProfiles = [];
+    let currentCompany = null;
+    let currentView = 'grid'; // 'grid' or 'list'
+    let searchTerm = '';
+
+    async function loadCompanyProfiles() {
+      if (!companySlug) {
+        showError('Ingen virksomhed angivet', 'Angiv venligst en virksomhed i URL\'en');
+        return;
+      }
+
+      try {
+        // Use Cloud Function to get company profiles (avoids permission issues)
+        const getCompanyProfiles = httpsCallable(fns, 'getCompanyProfiles');
+        const result = await getCompanyProfiles({ companySlug });
+
+        if (!result.data.ok) {
+          showError('Fejl ved indlæsning', 'Kunne ikke indlæse profiler');
+          return;
+        }
+
+        const { company, profiles } = result.data;
+        currentCompany = company;
+
+        // Sort profiles alphabetically by name (ASC)
+        allProfiles = profiles.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'da'));
+
+        // Show company logo if available
+        if (company.logoUrl) {
+          document.getElementById('companyLogoImg').src = company.logoUrl;
+          document.getElementById('companyLogo').style.display = 'block';
+        }
+
+        // Show company name
+        companyNameSpan.textContent = company.name;
+        companyBadge.style.display = 'inline-block';
+
+        if (profiles.length === 0) {
+          showEmptyState();
+          return;
+        }
+
+        renderProfiles();
+
+      } catch (err) {
+        console.error('Error loading profiles:', err);
+        if (err.code === 'functions/not-found') {
+          showError('Virksomhed ikke fundet', 'Den angivne virksomhed findes ikke i systemet');
+        } else {
+          showError('Fejl ved indlæsning', 'Kunne ikke indlæse profiler. Prøv igen senere.');
+        }
+      }
+    }
+
+    function getFilteredProfiles() {
+      if (!searchTerm) return allProfiles;
+      const term = searchTerm.toLowerCase();
+      return allProfiles.filter(p =>
+        (p.name || '').toLowerCase().includes(term) ||
+        (p.description || '').toLowerCase().includes(term) ||
+        (p.detectorTitle || '').toLowerCase().includes(term)
+      );
+    }
+
+    function renderProfiles() {
+      const filtered = getFilteredProfiles();
+
+      const controlsHtml = `
+        <div class="controls-bar">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="profileSearch" placeholder="Søg efter profil..." value="${searchTerm}" />
+          </div>
+          <div class="view-toggle">
+            <button class="view-btn ${currentView === 'grid' ? 'active' : ''}" onclick="setView('grid')" title="Kortvisning">
+              <i class="fas fa-th-large"></i>
+            </button>
+            <button class="view-btn ${currentView === 'list' ? 'active' : ''}" onclick="setView('list')" title="Listevisning">
+              <i class="fas fa-list"></i>
+            </button>
+          </div>
+        </div>
+      `;
+
+      if (filtered.length === 0) {
+        contentDiv.innerHTML = controlsHtml + `
+          <div class="no-results">
+            <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+            <p>Ingen profiler matcher "${searchTerm}"</p>
+          </div>
+        `;
+        attachSearchListener();
+        return;
+      }
+
+      if (currentView === 'grid') {
+        contentDiv.innerHTML = controlsHtml + `
+          <div class="profiles-grid">
+            ${filtered.map(p => `
+              <div class="profile-card" onclick="selectProfile('${p.slug}', '${currentCompany.slug}')">
+                <div class="profile-icon">
+                  <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="profile-name">${p.name || 'Unavngivet profil'}</div>
+                <div class="profile-description">${p.description || p.detectorTitle || 'Tag denne DISC profiltest for at få indsigt i dine styrker og udviklingsområder.'}</div>
+                <div class="profile-meta">
+                  <span><i class="fas fa-layer-group"></i> ${p.categoryCount || 0} kategorier</span>
+                  <span><i class="fas fa-clock"></i> Ca. 10 min</span>
+                </div>
+                <button class="start-btn">
+                  <i class="fas fa-play"></i> Start test
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        contentDiv.innerHTML = controlsHtml + `
+          <div class="profiles-list">
+            ${filtered.map(p => `
+              <div class="profile-list-item" onclick="selectProfile('${p.slug}', '${currentCompany.slug}')">
+                <div class="profile-icon">
+                  <i class="fas fa-briefcase"></i>
+                </div>
+                <div class="profile-info">
+                  <div class="profile-name">${p.name || 'Unavngivet profil'}</div>
+                  <div class="profile-description">${p.description || p.detectorTitle || 'Tag denne DISC profiltest.'}</div>
+                </div>
+                <div class="profile-meta" style="flex-direction: column; gap: 0.25rem; align-items: flex-end;">
+                  <span><i class="fas fa-layer-group"></i> ${p.categoryCount || 0} kategorier</span>
+                  <span><i class="fas fa-clock"></i> Ca. 10 min</span>
+                </div>
+                <button class="start-btn">
+                  <i class="fas fa-play"></i> Start
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      attachSearchListener();
+    }
+
+    function attachSearchListener() {
+      const searchInput = document.getElementById('profileSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchTerm = e.target.value;
+          renderProfiles();
+          // Restore focus and cursor position
+          const newInput = document.getElementById('profileSearch');
+          if (newInput) {
+            newInput.focus();
+            newInput.setSelectionRange(searchTerm.length, searchTerm.length);
+          }
+        });
+      }
+    }
+
+    window.setView = function(view) {
+      currentView = view;
+      renderProfiles();
+    };
+
+    function showError(title, message) {
+      contentDiv.innerHTML = `
+        <div class="error">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h2>${title}</h2>
+          <p>${message}</p>
+        </div>
+      `;
+    }
+
+    function showEmptyState() {
+      contentDiv.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
+          <h2>Ingen profiler tilgaengelige</h2>
+          <p>Der er endnu ikke tildelt nogen profiler til denne virksomhed.</p>
+        </div>
+      `;
+    }
+
+    // Global function to select profile and redirect
+    window.selectProfile = function(profileSlug, companySlug) {
+      // Redirect to the main survey page with the profile and company
+      window.location.href = `/?profile=${profileSlug}&company=${companySlug}`;
+    };
+
+    // Load profiles on page load
+    loadCompanyProfiles();
+  </script>
+</body>
+</html>

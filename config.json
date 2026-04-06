@@ -1,0 +1,17 @@
+{
+  "versionTitle": "Version 3.3",
+  "statementsPath": "disc_udsagn_0.0.csv",
+  "likert": {
+    "labels": ["Meget uenig", "Uenig", "Både/og", "Enig", "Meget enig"],
+    "points": {
+      "D": { "1": -8, "2": -6, "3": 0, "4": 6, "5": 8 },
+      "I": { "1": -8, "2": -6, "3": 0, "4": 6, "5": 8 },
+      "S": { "1": -8, "2": -6, "3": 0, "4": 8, "5": 8 },
+      "C": { "1": -8, "2": -6, "3": 0, "4": 8, "5": 8 }
+    }
+  },
+  "normalization": {
+    "margin": 3,
+    "afvigelsesFaktor": 2
+  }
+}

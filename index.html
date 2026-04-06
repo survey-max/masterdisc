@@ -1,1 +1,621 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DISC Analyse V2.2</title>
+  <style>
+    :root { --bg:#ececec; --card:#fff; --line:#d7dce5; --text:#1f2937; --muted:#64748b; --primary:#0f172a; --ok:#15803d; --warn:#b45309; --brand:#1475f5; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#101f36; color:var(--text); }
+    .wrap { max-width:1170px; margin:0 auto; padding:24px 16px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    h1,h2,h3,p { margin:0 0 8px; }
+    h1 { font-size:42px; line-height:1.1; }
+    h2 { font-size:42px; line-height:1.1; }
+    .muted { color:var(--muted); }
+    .row { display:grid; grid-template-columns:110px 1fr; gap:12px; align-items:center; margin-bottom:10px; }
+    .row label { font-weight:600; }
+    input,select,button { font:inherit; }
+    input[type="text"],input[type="email"],input[type="date"],select {
+      width:100%; height:42px; border:1px solid #c6ccd7; border-radius:4px; padding:0 10px; color:#111827; background:#fff;
+    }
+    .checkbox { display:flex; gap:10px; align-items:flex-start; margin:8px 0; }
+    .btn { border:0; border-radius:10px; padding:10px 16px; cursor:pointer; }
+    .btn-primary { background:var(--brand); color:#fff; }
+    .btn-dark { background:#0f172a; color:#fff; }
+    .btn-line { border:1px solid #bcc5d6; background:#fff; color:#334155; }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .between { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .hidden { display:none; }
+    .error { color:#b91c1c; margin-top:8px; }
+    .ok { color:var(--ok); }
+    .progress { height:8px; background:#e6ebf2; border-radius:999px; overflow:hidden; }
+    .progress > div { height:100%; background:var(--brand); width:0%; transition:width .2s; }
+    .option { border:1px solid #d8deea; background:#f8fafc; border-radius:12px; padding:12px; margin-top:10px; }
+    .option .between { align-items:flex-start; }
+    .actions { display:flex; gap:8px; }
+    .choice { border:1px solid #b9c4d6; border-radius:10px; background:#fff; padding:7px 10px; font-size:13px; font-weight:600; color:#334155; }
+    .choice.most.active { background:#15803d; border-color:#15803d; color:#fff; }
+    .choice.least.active { background:#b45309; border-color:#b45309; color:#fff; }
+    .tiny { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .required { color:#ef4444; }
+    .intro-shell { padding:8px 2px; }
+    .intro-field { margin-bottom:12px; }
+    .intro-field label { display:flex; align-items:center; gap:4px; font-weight:700; margin-bottom:6px; color:#2f2f2f; }
+    .intro-field p { margin:0; }
+    .inline-checks { display:flex; align-items:center; gap:14px; margin-top:6px; }
+    .inline-checks label { font-weight:500; display:flex; align-items:center; gap:6px; margin:0; }
+    .consent-section { margin-top:16px; background:#f6f8fb; border:1px solid #d7deea; border-radius:8px; padding:14px; }
+    .consent-section h4 { margin:0 0 12px; color:#1f3b67; border-bottom:2px solid var(--brand); padding-bottom:6px; }
+    .consent-checkbox-wrapper { margin:10px 0; }
+    .consent-label { display:flex; align-items:flex-start; gap:10px; font-weight:400; line-height:1.45; }
+    .consent-label input { margin-top:3px; }
+    .consent-details { background:#fff; border-left:3px solid var(--brand); padding:12px; margin:10px 0 14px 27px; border-radius:4px; }
+    .consent-details p { margin:0 0 8px; font-size:13px; }
+    .consent-details ul { margin:4px 0 8px 18px; padding:0; font-size:13px; }
+    .consent-details li { margin:2px 0; }
+    .consent-link a { color:var(--brand); text-decoration:none; font-weight:700; }
+    .consent-link a:hover { text-decoration:underline; }
+    .consent-withdrawal { border-top:1px dashed #cbd5e1; margin-top:10px; padding-top:10px; }
+    .consent-withdrawal-title { font-weight:700; margin-bottom:4px; font-size:13px; }
+    .consent-withdrawal p { margin:0; font-size:12px; color:#475569; line-height:1.5; }
+    .step-intro-card { margin-bottom:16px; }
+    @media (max-width:720px){ .row{grid-template-columns:1fr;} h1{font-size:34px;} h2{font-size:34px;} .intro-shell{max-width:100%;} .consent-details{margin-left:0;} }
+  </style>
+</head>
+<body>
+  <div style="max-width:1170px; margin:0 auto; padding:20px 16px 8px; display:flex; align-items:center; justify-content:center; position:relative;">
+    <div id="langWrapper" style="position:absolute; left:16px; display:none; align-items:center; gap:4px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <label id="langLabel" for="langSelect" style="font-weight:700; font-size:13px; white-space:nowrap; color:#ffffff;">Language</label>
+      <select id="langSelect" style="height:36px; border:1px solid #c6ccd7; border-radius:6px; padding:0 10px; font-weight:600; font-size:13px; color:#334155; background:#fff; cursor:pointer;">
+        <option value="da">DA</option>
+        <option value="en">EN</option>
+      </select>
+    </div>
+    <img src="assets/masterDisc_logo.png" alt="Master DISC" style="height:60px;">
+  </div>
+  <div class="wrap">
+    <section id="stepCode" class="card">
+      <h3 style="margin:0 0 10px;">Indtast konsulent kode</h3>
+      <div class="row" style="grid-template-columns:1fr; margin-top:10px;">
+        <input id="submitCode" type="text" />
+      </div>
+      <button id="btnVerify" class="btn btn-primary">Fortsæt</button>
+      <p id="codeError" class="error"></p>
+    </section>
 
+    <section id="stepIntro" class="card hidden step-intro-card">
+      <div class="intro-shell">
+        <h3 style="text-align:center; font-size:36px; margin-bottom:14px;">Velkommen til DISC-analysen</h3>
+
+        <div class="intro-field">
+          <label for="fFirstName">Fornavn:<span class="required">*</span></label>
+          <input id="fFirstName" type="text" />
+        </div>
+
+        <div class="intro-field">
+          <label for="fLastName">Efternavn:<span class="required">*</span></label>
+          <input id="fLastName" type="text" />
+        </div>
+
+        <div class="intro-field">
+          <label for="fCompany">Firma:<span class="required">*</span></label>
+          <input id="fCompany" type="text" />
+        </div>
+
+        <div class="intro-field">
+          <label>Ansættelse:<span class="required">*</span></label>
+          <p class="muted" style="font-size:12px;">Er din DISC-profil et led i en potentiel ansættelse?</p>
+          <div class="inline-checks">
+            <label><input type="checkbox" id="fEmploymentYes" name="employmentCheck" value="Ja"> Ja</label>
+            <label><input type="checkbox" id="fEmploymentNo" name="employmentCheck" value="Nej"> Nej</label>
+          </div>
+        </div>
+
+        <div class="intro-field">
+          <label for="fGender">Køn:<span class="required">*</span></label>
+          <select id="fGender"><option value="">__</option><option>Mand</option><option>Kvinde</option><option>Andet</option></select>
+        </div>
+
+        <div class="intro-field">
+          <label for="fEmail">E-mail:<span class="required">*</span></label>
+          <input id="fEmail" type="email" />
+        </div>
+
+        <div class="consent-section">
+          <h4>Samtykke til databehandling</h4>
+          <div class="consent-checkbox-wrapper">
+            <label class="consent-label">
+              <input id="fConsentData" type="checkbox" />
+              <span>Jeg giver samtykke til, at mine personoplysninger behandles af Coachers ApS med henblik på generering af min DISC-profil.</span>
+            </label>
+          </div>
+
+          <div class="consent-details">
+            <p>Behandlingen omfatter:</p>
+            <ul>
+              <li>AI-baseret analyse via Anthropic (USA) til profilgenerering</li>
+              <li>Deling af min DISC-profil med min tilknyttede konsulent</li>
+              <li>Fremsendelse af PDF-rapport via e-mail</li>
+            </ul>
+            <p>Mine data opbevares i 90 dage (ansættelsesrelateret) eller op til 24 måneder (øvrige formål) og kan slettes på anmodning.</p>
+            <p>Der sker overførsel af personoplysninger til et tredjeland (USA) baseret på EU-Kommissionens standardkontraktbestemmelser.</p>
+            <p class="consent-link">Læs vores fulde privatlivspolitik her: <a href="https://storage.googleapis.com/disclinedb.firebasestorage.app/public/MasterDISC-Vilkaar-og-Betingelser.pdf" target="_blank" rel="noopener">Download PDF</a></p>
+          </div>
+
+          <div class="consent-checkbox-wrapper">
+            <label class="consent-label">
+              <input id="fConsentAge" type="checkbox" />
+              <span>Jeg bekræfter, at jeg er fyldt 16 år</span>
+            </label>
+          </div>
+
+          <div class="consent-withdrawal">
+            <p class="consent-withdrawal-title">Tilbagetrækning af samtykke</p>
+            <p>Jeg kan til enhver tid trække mit samtykke tilbage ved at kontakte info@coachers.dk. Ved tilbagetrækning vil alle personoplysninger og besvarelser blive slettet uden unødig forsinkelse, medmindre anden lovgivning kræver fortsat opbevaring.</p>
+          </div>
+        </div>
+      </div>
+      <p id="introError" class="error"></p>
+      <div style="text-align:center;"><button id="btnStartIntro" class="btn btn-primary" style="font-size:18px; padding:12px 26px;">Start analysen</button></div>
+    </section>
+
+    <section id="stepPrep" class="card hidden">
+      <h3>Gode råd</h3>
+      <ul>
+        <li>Sørg for at du kan koncentrere dig uden forstyrrelser.</li>
+        <li>Brug ca. 10-15 minutter på at udfylde analysen.</li>
+        <li>Vælg det svar der naturligt falder dig ind.</li>
+      </ul>
+      <div class="between"><button id="btnBackToIntro" class="btn btn-line">Tilbage</button><button id="btnStartSurvey" class="btn btn-primary">Fortsæt</button></div>
+    </section>
+
+    <section id="stepSurvey" class="card hidden">
+      <div class="between tiny"><span id="qCounter">SPØRGSMÅL 1 AF 27</span><span id="qPct">0%</span></div>
+      <div class="progress"><div id="qBar"></div></div>
+      <h3 id="qText" style="margin-top:14px;"></h3>
+      <p class="muted">Vælg én som passer MEST og én som passer MINDST.</p>
+      <div id="qOptions"></div>
+      <p id="qError" class="error"></p>
+      <p id="submitError" class="error"></p>
+      <div class="between" style="margin-top:12px;">
+        <button id="btnPrevQ" class="btn btn-line">Tilbage</button>
+        <button id="btnNextQ" class="btn btn-primary">Næste</button>
+      </div>
+    </section>
+
+    <section id="stepDone" class="card hidden" style="text-align:center;">
+      <h3 class="ok">Tak for din besvarelse!</h3>
+      <p class="muted">Din DISC V2.2-besvarelse er modtaget, og rapporten behandles som normalt.</p>
+    </section>
+  </div>
+
+  <script>
+    const VERIFY_CODE_URL = 'https://europe-west1-disclinedb.cloudfunctions.net/verifyCode';
+    const SUBMIT_URL = 'https://europe-west1-disclinedb.cloudfunctions.net/submit';
+    const LIST_PUBLIC_PROFILES_URL = 'https://europe-west1-disclinedb.cloudfunctions.net/listPublicProfiles';
+    const FORCED_CHOICE_V2_MODEL = 'forced-choice';
+    const FORCED_CHOICE_V2_VERSION = 'V2.2';
+    const SCORED_IDS = Array.from({length:24}, (_,i)=>i+1);
+    const VALIDATION_IDS = [25,26,27];
+    const VALIDATION_SET = new Set(VALIDATION_IDS);
+    const DIMS = ['D','I','S','C'];
+
+    let QUESTIONS = [];
+
+    const state = {
+      step: 'code', submitMeta: null, questionOrder: [], optionOrder: {}, questionIndex: 0, selections: {},
+      surveyStartTs: null, profiles: [{slug:'basis',name:'Basisprofil'}], profileParam: '', companyParam: ''
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const show = (id) => $(id).classList.remove('hidden');
+    const hide = (id) => $(id).classList.add('hidden');
+    const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+    const pad = (n)=>String(n).padStart(2,'0');
+    const shuffle = (arr)=>{ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+    const empty = () => ({D:0,I:0,S:0,C:0});
+
+    function toDDMMYYYY(v){ const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m?`${m[3]}${m[2]}${m[1]}`:String(v||''); }
+    function buildRespondentId(date, first, last){
+      const slug=(x)=>String(x||'').trim().toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+      return `${String(date||'').replace(/\D/g,'')}-${slug(first)}-${slug(last)}`.replace(/^-+|-+$/g,'');
+    }
+
+    function scoreByFormula(counts, mostWeight, leastWeight){ const out=empty(); DIMS.forEach(d=>out[d]=counts.most[d]*mostWeight + counts.least[d]*leastWeight); return out; }
+    function scaleGraphValues(graph, minValue, maxValue, margin=3){ const span=100-margin*2, range=maxValue-minValue||1, out=empty(); DIMS.forEach(d=>out[d]=clamp(Math.round(((graph[d]-minValue)/range)*span+margin), margin, 100-margin)); return out; }
+    function normalizeGraphTo200(graph, margin=3){ const sum=DIMS.reduce((a,d)=>a+graph[d],0); if(!sum||!Number.isFinite(sum)) return {D:50,I:50,S:50,C:50}; const out=empty(); DIMS.forEach(d=>out[d]=clamp(Math.round((graph[d]/sum)*200),margin,100-margin)); return out; }
+    function adaptationBand(totalAbs){ if(totalAbs<50) return 'LAV'; if(totalAbs<=100) return 'MODERAT'; return 'HOJ'; }
+    function entropy(values){ const total=DIMS.reduce((s,d)=>s+Math.max(0,values[d]||0),0); if(!total) return 0; let e=0; DIMS.forEach(d=>{ const p=(values[d]||0)/total; if(p>0)e-=p*Math.log2(p);}); return e; }
+    function intensityClass(v){ if(v<45) return 'L'; if(v<=55) return 'M'; return 'H'; }
+    function quantize(v){ if(v<=39) return 'Q0'; if(v<=49) return 'Q1'; if(v<=59) return 'Q2'; return 'Q3'; }
+    function hashPosInt(input){ let h=0; for(let i=0;i<input.length;i++) h=(h*31+input.charCodeAt(i))%2147483647; return h; }
+    function sortDims(values){ const pr={D:0,I:1,S:2,C:3}; return [...DIMS].sort((a,b)=>values[b]===values[a]?pr[a]-pr[b]:values[b]-values[a]); }
+    const LEVEL2_ORDER=['DI','DS','DC','ID','IS','IC','SD','SI','SC','CD','CI','CS'];
+    function classify(graph2, adaptation){
+      const sorted=sortDims(graph2), primary=sorted[0], secondary=sorted[1], pair=`${primary}${secondary}`;
+      const pairIndex=Math.max(0,LEVEL2_ORDER.indexOf(pair));
+      const pInt=intensityClass(graph2[primary]), intIndex=pInt==='L'?0:pInt==='M'?1:2, adIndex=adaptation.band==='LAV'?0:adaptation.band==='MODERAT'?1:2;
+      const level2Index=((pairIndex*3+intIndex+adIndex)%40)+1;
+      const quantized={D:quantize(graph2.D),I:quantize(graph2.I),S:quantize(graph2.S),C:quantize(graph2.C)};
+      const level3Index=(hashPosInt([primary,secondary,quantized.D,quantized.I,quantized.S,quantized.C,adaptation.band].join(':'))%160)+1;
+      return { level1:{primaryStyle:primary,secondaryStyle:secondary}, level2:{code:`L2_${String(level2Index).padStart(2,'0')}`,pair,primaryIntensity:pInt,adaptationBand:adaptation.band}, level3:{code:`L3_${String(level3Index).padStart(3,'0')}`,quantized}, primaryStyle:primary, secondaryStyle:secondary, combination40:`L2_${String(level2Index).padStart(2,'0')}`, combination160:`L3_${String(level3Index).padStart(3,'0')}`, confidenceScore:clamp(100-Math.min(100,adaptation.totalAbs),0,100) };
+    }
+    function calcValidity(selections, counts, adaptation, durationSecInput){
+      const durationSec=Number.isFinite(durationSecInput)?Math.max(0,Math.round(durationSecInput||0)):null;
+      let timePenalty=0;
+      if(durationSec!==null){ if(durationSec<=120) timePenalty=35; else if(durationSec<=300) timePenalty=35*((300-durationSec)/(300-120)); }
+      const mostCounts=DIMS.map(d=>counts.most[d]||0), leastCounts=DIMS.map(d=>counts.least[d]||0);
+      const repeatedMostPenalty=Math.max(...mostCounts)>=18?15:0, repeatedLeastPenalty=Math.max(...leastCounts)>=18?15:0, adaptationPenalty=adaptation.totalAbs>130?10:0, consistencyPenalty=repeatedMostPenalty+repeatedLeastPenalty+adaptationPenalty;
+      const mostEntropy=entropy(counts.most), leastEntropy=entropy(counts.least), entropyPenalty=(mostEntropy<1.2 && leastEntropy<1.2)?20:(mostEntropy<1.2 || leastEntropy<1.2)?10:0, patternPenalty=entropyPenalty;
+      let sameChoiceViolations=0, incompleteAnswers=0;
+      for(const s of selections){ if(!DIMS.includes(s.most)||!DIMS.includes(s.least)){ incompleteAnswers++; continue; } if(s.most===s.least) sameChoiceViolations++; }
+      const sameChoicePenalty=Math.min(20,sameChoiceViolations*5), rulePenalty=sameChoicePenalty, totalPenalty=Math.round(timePenalty+consistencyPenalty+patternPenalty+rulePenalty), validity=clamp(Math.round(100-totalPenalty),0,100);
+      const invalidReasons=[]; if(durationSec===null) invalidReasons.push('missing_data'); if(incompleteAnswers>0) invalidReasons.push('incomplete_answers'); if(sameChoiceViolations>8) invalidReasons.push('too_many_same_choice_violations'); if(validity<40) invalidReasons.push('low_validity');
+      return { validity, validityStatus: invalidReasons.length?'invalid':'valid', validityBreakdown:{durationSec,timePenalty:Math.round(timePenalty),repeatedMostPenalty,repeatedLeastPenalty,adaptationPenalty,consistencyPenalty,mostEntropy:Number(mostEntropy.toFixed(4)),leastEntropy:Number(leastEntropy.toFixed(4)),entropyPenalty,patternPenalty,sameChoiceViolations,sameChoicePenalty,rulePenalty,totalPenalty}, invalidReasons };
+    }
+    function calculate(selections, opts={}){
+      const counts={most:empty(),least:empty()};
+      for(const s of selections){ if(VALIDATION_SET.has(s.questionId)) continue; if(DIMS.includes(s.most)) counts.most[s.most]++; if(DIMS.includes(s.least)) counts.least[s.least]++; }
+      const graph1Raw=scoreByFormula(counts,4.0,-1.5), graph2Raw=scoreByFormula(counts,1.5,-4.0);
+      const graph1Scaled=scaleGraphValues(graph1Raw,-36,96), graph2Scaled=scaleGraphValues(graph2Raw,-96,36);
+      const graph1=normalizeGraphTo200(graph1Scaled), graph2=normalizeGraphTo200(graph2Scaled);
+      const adaptation={D:graph1.D-graph2.D,I:graph1.I-graph2.I,S:graph1.S-graph2.S,C:graph1.C-graph2.C,totalAbs:0,band:'LAV'};
+      adaptation.totalAbs=Math.abs(adaptation.D)+Math.abs(adaptation.I)+Math.abs(adaptation.S)+Math.abs(adaptation.C); adaptation.band=adaptationBand(adaptation.totalAbs);
+      const classification=classify(graph2,adaptation), valid=calcValidity(selections,counts,adaptation,opts.durationSec);
+      return { score:{D1:graph1.D,I1:graph1.I,S1:graph1.S,C1:graph1.C,D2:graph2.D,I2:graph2.I,S2:graph2.S,C2:graph2.C}, counts, raw:{graph1:graph1Raw,graph2:graph2Raw,private:graph2Raw,work:graph1Raw}, normalized:{graph1,graph2,private:graph2,work:graph1}, adaptation, classification, validity:valid.validity, validityStatus:valid.validityStatus, validityBreakdown:valid.validityBreakdown, invalidReasons:valid.invalidReasons };
+    }
+
+    function setStep(step){
+      ['stepCode','stepIntro','stepPrep','stepSurvey','stepDone'].forEach(id=>hide(id));
+      if(step==='code') show('stepCode');
+      if(step==='intro') show('stepIntro');
+      if(step==='prep') show('stepPrep');
+      if(step==='survey') show('stepSurvey');
+      if(step==='done') show('stepDone');
+      $('langWrapper').style.display = step==='intro' ? 'flex' : 'none';
+      state.step = step;
+    }
+
+    function currentQuestion(){ const qs=getQuestions(); const id=state.questionOrder[state.questionIndex]; return qs.find(q=>q.id===id); }
+    function getLabel(qid, oid){ const q=QUESTIONS.find(x=>x.id===qid); const o=q&&q.options.find(x=>x.id===oid); return o?o.label:oid; }
+
+    function renderQuestion(){
+      const qs = getQuestions();
+      const qid = state.questionOrder[state.questionIndex];
+      const q = qs.find(x=>x.id===qid); if(!q) return;
+      $('qCounter').textContent = L('survey.questionOf').replace('{n}', state.questionIndex+1).replace('{total}', state.questionOrder.length);
+      const pct=Math.round(((state.questionIndex+1)/state.questionOrder.length)*100);
+      $('qPct').textContent=`${pct}%`; $('qBar').style.width=`${pct}%`;
+      $('qText').textContent=q.text;
+      $('qError').textContent=''; $('submitError').textContent='';
+
+      const ordered = state.optionOrder[qid] || q.options.map(o=>o.id);
+      const sel = state.selections[qid] || {};
+      const html = ordered.map((id)=>{
+        const o=q.options.find(x=>x.id===id);
+        const mostClass = sel.most===id ? 'active' : '';
+        const leastClass = sel.least===id ? 'active' : '';
+        return `<div class="option"><div class="between"><p style="margin:0;max-width:70%;">${o.label}</p><div class="actions"><button class="choice most ${mostClass}" data-kind="most" data-value="${id}">${L('survey.most')}</button><button class="choice least ${leastClass}" data-kind="least" data-value="${id}">${L('survey.least')}</button></div></div></div>`;
+      }).join('');
+      $('qOptions').innerHTML = html;
+      $('btnPrevQ').disabled = state.questionIndex===0;
+      $('btnNextQ').textContent = state.questionIndex===state.questionOrder.length-1 ? L('buttons.finish') : L('buttons.next');
+
+      $('qOptions').querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const kind=e.currentTarget.dataset.kind;
+          const value=e.currentTarget.dataset.value;
+          const current=state.selections[qid]||{};
+          if(kind==='most' && current.least===value){ $('qError').textContent=L('survey.errorSame'); return; }
+          if(kind==='least' && current.most===value){ $('qError').textContent=L('survey.errorSame'); return; }
+          state.selections[qid] = {...current, [kind]: value};
+          renderQuestion();
+        });
+      });
+    }
+
+    function startSurvey(){
+      state.questionOrder = shuffle(QUESTIONS.map(q=>q.id));
+      state.optionOrder = {};
+      QUESTIONS.forEach(q=> state.optionOrder[q.id] = shuffle(q.options.map(o=>o.id)));
+      state.questionIndex = 0;
+      state.selections = {};
+      state.surveyStartTs = Date.now();
+      setStep('survey');
+      renderQuestion();
+    }
+
+    async function verifyCode(){
+      $('codeError').textContent='';
+      const code=$('submitCode').value.trim();
+      if(!code){ $('codeError').textContent=L('codeGate.errorEmpty'); return; }
+      $('btnVerify').disabled=true;
+      try{
+        const res=await fetch(VERIFY_CODE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({submitCode:code})});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok || !data.ok){ throw new Error(data.error||'invalid'); }
+        state.submitMeta = { submitCode:data.normalizedCode || code.toUpperCase(), consultantName:data.consultantName||null };
+        setStep('intro');
+      }catch(err){ $('codeError').textContent=L('codeGate.errorInvalid'); }
+      finally { $('btnVerify').disabled=false; }
+    }
+
+    function introData(){
+      const employment = $('fEmploymentYes').checked ? 'Ja' : ($('fEmploymentNo').checked ? 'Nej' : '');
+      return {
+        date: new Date().toISOString().slice(0, 10),
+        firstName: $('fFirstName').value.trim(),
+        lastName: $('fLastName').value.trim(),
+        gender: $('fGender').value,
+        email: $('fEmail').value.trim(),
+        company: $('fCompany').value.trim(),
+        profile: 'basis',
+        employment,
+        consentDataProcessing: $('fConsentData').checked,
+        consentAge: $('fConsentAge').checked
+      };
+    }
+
+    function validateIntro(f){
+      if(!f.firstName) return L('validation.firstName');
+      if(!f.lastName) return L('validation.lastName');
+      if(!f.gender) return L('validation.gender');
+      if(!f.email) return L('validation.email');
+      if(!isEmail(f.email)) return L('validation.emailInvalid');
+      if(!f.company) return L('validation.company');
+      if(!f.employment) return L('validation.employment');
+      if(!f.consentDataProcessing) return L('validation.consent');
+      if(!f.consentAge) return L('validation.age');
+      return '';
+    }
+
+    async function submitSurvey(){
+      const f=introData();
+      const ordered=state.questionOrder.map(id=>QUESTIONS.find(q=>q.id===id)).filter(Boolean);
+      const missing = ordered.find(q=>!state.selections[q.id]?.most || !state.selections[q.id]?.least || state.selections[q.id]?.most===state.selections[q.id]?.least);
+      if(missing){ $('qError').textContent=L('survey.errorAllRequired'); return; }
+      const startedAt = state.surveyStartTs || Date.now();
+      const finishedAt = Date.now();
+      const durationSec = Math.max(0, Math.round((finishedAt-startedAt)/1000));
+      const selectionRows = ordered.map(q=>{
+        const a=state.selections[q.id];
+        return { questionId:q.id, question:q.text, most:a.most, least:a.least, mostLabel:getLabel(q.id,a.most), leastLabel:getLabel(q.id,a.least), options:q.options };
+      });
+      const result = calculate(selectionRows,{durationSec});
+      const validationSelections = selectionRows.filter(s=>VALIDATION_SET.has(s.questionId));
+      const dateDDMMYYYY = toDDMMYYYY(f.date);
+      const payload = {
+        participant: { name:[f.firstName,f.lastName].filter(Boolean).join(' '), email:f.email, company:f.company, gender:f.gender, date:dateDDMMYYYY, id:buildRespondentId(dateDDMMYYYY,f.firstName,f.lastName), ansaettelse:f.employment, profile:f.profile, language:currentLang },
+        answers: {
+          model: FORCED_CHOICE_V2_MODEL,
+          modelVersion: FORCED_CHOICE_V2_VERSION,
+          detailedAnswers: [],
+          score: result.score,
+          forcedChoiceV2: { questionOrder:state.questionOrder, scoredQuestionIds:SCORED_IDS, validationQuestionIds:VALIDATION_IDS, selections:selectionRows, validationSelections, counts:result.counts, raw:result.raw, normalized:result.normalized, adaptation:result.adaptation, classification:result.classification }
+        },
+        meta: { startTid:new Date(startedAt).toISOString(), slutTid:new Date(finishedAt).toISOString(), durationSec, userAgent:navigator.userAgent, questionnaireType:FORCED_CHOICE_V2_MODEL, questionnaireVersion:FORCED_CHOICE_V2_VERSION, validityStatus:result.validityStatus, validityBreakdown:result.validityBreakdown, invalidReasons:result.invalidReasons },
+        consent: { dataProcessing:f.consentDataProcessing, ageConfirmation:f.consentAge, timestamp:new Date().toISOString(), version:'2.0' },
+        validity: result.validity
+      };
+      $('btnNextQ').disabled = true;
+      try{
+        const res=await fetch(SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({submitCode:state.submitMeta.submitCode,payload})});
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok || !data.ok) throw new Error(data.error||'submit_failed');
+        setStep('done');
+      }catch(err){
+        $('submitError').textContent = L('survey.submitFail').replace('{err}', err.message || 'Unknown error');
+      }finally{
+        $('btnNextQ').disabled = false;
+      }
+    }
+
+    async function loadProfiles(){
+      const params = new URLSearchParams(window.location.search);
+      state.profileParam = (params.get('profile') || '').trim();
+      state.companyParam = (params.get('company') || '').trim();
+      if(state.companyParam) $('fCompany').value = state.companyParam;
+
+      try{
+        const response = await fetch(LIST_PUBLIC_PROFILES_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({data:{}}) });
+        const payload = await response.json().catch(()=>null);
+        const root = (payload && (payload.result || payload.data || payload)) || {};
+        const list = Array.isArray(root.profiles) ? root.profiles : [];
+        const parsed = list.map(p=>({slug:String(p.slug||'').trim(),name:String(p.name||'').trim()})).filter(p=>p.slug&&p.name);
+        if(parsed.length) state.profiles = parsed;
+      } catch {}
+
+    }
+
+    $('btnVerify').addEventListener('click', verifyCode);
+    $('fEmploymentYes').addEventListener('change', ()=>{ if($('fEmploymentYes').checked) $('fEmploymentNo').checked = false; });
+    $('fEmploymentNo').addEventListener('change', ()=>{ if($('fEmploymentNo').checked) $('fEmploymentYes').checked = false; });
+    $('btnStartIntro').addEventListener('click', ()=>{
+      const err = validateIntro(introData());
+      $('introError').textContent = err;
+      if(err) return;
+      setStep('prep');
+    });
+    $('btnBackToIntro').addEventListener('click', ()=>setStep('intro'));
+    $('btnStartSurvey').addEventListener('click', startSurvey);
+    $('btnPrevQ').addEventListener('click', ()=>{ state.questionIndex=Math.max(0,state.questionIndex-1); renderQuestion(); });
+    $('btnNextQ').addEventListener('click', ()=>{
+      const q=currentQuestion(); if(!q) return;
+      const sel=state.selections[q.id]||{};
+      if(!sel.most || !sel.least || sel.most===sel.least){ $('qError').textContent=L('survey.errorBothRequired'); return; }
+      if(state.questionIndex===state.questionOrder.length-1){ submitSurvey(); return; }
+      state.questionIndex += 1; renderQuestion();
+    });
+
+    /* ── Language: load from locales/*.json and CSV ── */
+    let localeData = {};
+    let localeCache = {};
+    let questionsPerLang = {};
+    let currentLang = 'da';
+
+    function L(path) {
+      const keys = path.split('.');
+      let val = localeData;
+      for (const k of keys) { val = val && val[k]; if (val === undefined) return path; }
+      return val;
+    }
+
+    async function loadLocale(lang) {
+      if (localeCache[lang]) return localeCache[lang];
+      const res = await fetch(`locales/${lang}.json`);
+      if (!res.ok) throw new Error('Failed to load locale: ' + lang);
+      const data = await res.json();
+      localeCache[lang] = data;
+      return data;
+    }
+
+    function parseQuestionsCSV(text) {
+      const lines = text.trim().split('\n');
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = [];
+        let cur = '', inQ = false;
+        for (let c = 0; c < lines[i].length; c++) {
+          const ch = lines[i][c];
+          if (ch === '"') { inQ = !inQ; continue; }
+          if (ch === ',' && !inQ) { cols.push(cur); cur = ''; continue; }
+          cur += ch;
+        }
+        cols.push(cur);
+        const [id, text, optS, optI, optC, optD, isVal] = cols;
+        rows.push({
+          id: parseInt(id), text,
+          isValidation: isVal.trim().toLowerCase() === 'true',
+          options: [
+            { id: 'S', label: optS },
+            { id: 'I', label: optI },
+            { id: 'C', label: optC },
+            { id: 'D', label: optD }
+          ]
+        });
+      }
+      return rows;
+    }
+
+    async function loadQuestionsCSV(lang) {
+      const file = `disc_udsagn_${lang}_3.0.csv`;
+      try {
+        const res = await fetch(file);
+        if (!res.ok) return null;
+        return parseQuestionsCSV(await res.text());
+      } catch { return null; }
+    }
+
+    function getQuestions() {
+      return questionsPerLang[currentLang] || QUESTIONS;
+    }
+
+    async function applyLanguage(lang) {
+      try { localeData = await loadLocale(lang); } catch(e) { console.error('Language load failed:', e); return; }
+      if (!questionsPerLang[lang]) {
+        const q = await loadQuestionsCSV(lang);
+        if (q) questionsPerLang[lang] = q;
+      }
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      $('langSelect').value = lang;
+
+      // Code gate
+      $('stepCode').querySelector('h3').textContent = L('codeGate.heading');
+      $('btnVerify').textContent = L('codeGate.button');
+
+      // Intro
+      $('stepIntro').querySelector('h3').textContent = L('introForm.heading');
+      const introFields = $('stepIntro').querySelectorAll('.intro-field');
+      const setLabel = (el, text, req) => { if(el) el.innerHTML = text + (req ? '<span class="required">*</span>' : ''); };
+      // 0=Fornavn, 1=Efternavn, 2=Firma, 3=Ansættelse, 4=Køn, 5=Email
+      setLabel(introFields[0]?.querySelector('label'), L('introForm.firstName'), true);
+      setLabel(introFields[1]?.querySelector('label'), L('introForm.lastName'), true);
+      setLabel(introFields[2]?.querySelector('label'), L('introForm.company'), true);
+      // Employment
+      const empField = introFields[3];
+      if(empField) {
+        empField.querySelector('label').innerHTML = L('introForm.employment') + '<span class="required">*</span>';
+        empField.querySelector('p').textContent = L('introForm.employmentQuestion');
+        const empLabels = empField.querySelectorAll('.inline-checks label');
+        if(empLabels[0]) empLabels[0].innerHTML = '<input type="checkbox" id="fEmploymentYes" name="employmentCheck" value="' + L('introForm.employmentYes') + '"> ' + L('introForm.employmentYes');
+        if(empLabels[1]) empLabels[1].innerHTML = '<input type="checkbox" id="fEmploymentNo" name="employmentCheck" value="' + L('introForm.employmentNo') + '"> ' + L('introForm.employmentNo');
+        $('fEmploymentYes').addEventListener('change', ()=>{ if($('fEmploymentYes').checked) $('fEmploymentNo').checked = false; });
+        $('fEmploymentNo').addEventListener('change', ()=>{ if($('fEmploymentNo').checked) $('fEmploymentYes').checked = false; });
+      }
+      // Køn
+      setLabel(introFields[4]?.querySelector('label'), L('introForm.gender'), true);
+      // Email
+      setLabel(introFields[5]?.querySelector('label'), L('introForm.email'), true);
+      // Gender options
+      const gOpts = $('fGender').options;
+      if(gOpts[1]) gOpts[1].text = L('introForm.genderMale');
+      if(gOpts[2]) gOpts[2].text = L('introForm.genderFemale');
+      if(gOpts[3]) gOpts[3].text = L('introForm.genderOther');
+
+      // Consent
+      const cs = $('stepIntro').querySelector('.consent-section');
+      if(cs) {
+        cs.querySelector('h4').textContent = L('introForm.consentHeading');
+        const consentLabels = cs.querySelectorAll('.consent-label span');
+        if(consentLabels[0]) consentLabels[0].textContent = L('introForm.consentMainText');
+        const cd = cs.querySelector('.consent-details');
+        if(cd) {
+          const ps = cd.querySelectorAll('p');
+          const lis = cd.querySelectorAll('li');
+          if(ps[0]) ps[0].textContent = L('introForm.consentProcessingIntro');
+          if(lis[0]) lis[0].textContent = L('introForm.consentBullet1');
+          if(lis[1]) lis[1].textContent = L('introForm.consentBullet2');
+          if(lis[2]) lis[2].textContent = L('introForm.consentBullet3');
+          if(ps[1]) ps[1].textContent = L('introForm.consentRetention');
+          if(ps[2]) ps[2].textContent = L('introForm.consentTransfer');
+          const linkP = cd.querySelector('.consent-link');
+          if(linkP) linkP.innerHTML = L('introForm.consentPrivacyLink') + ' <a href="https://storage.googleapis.com/disclinedb.firebasestorage.app/public/MasterDISC-Vilkaar-og-Betingelser.pdf" target="_blank" rel="noopener">' + L('introForm.consentDownloadPdf') + '</a>';
+        }
+        if(consentLabels[1]) consentLabels[1].textContent = L('introForm.consentAgeConfirm');
+        const cw = cs.querySelector('.consent-withdrawal');
+        if(cw) {
+          cw.querySelector('.consent-withdrawal-title').textContent = L('introForm.consentWithdrawalTitle');
+          cw.querySelector('p:last-child').textContent = L('introForm.consentWithdrawalText');
+        }
+      }
+      $('btnStartIntro').textContent = L('introForm.startButton');
+
+      // Prep
+      $('stepPrep').querySelector('h3').textContent = L('prepScreen.heading');
+      const prepLis = $('stepPrep').querySelectorAll('li');
+      if(prepLis[0]) prepLis[0].textContent = L('prepScreen.advice1');
+      if(prepLis[1]) prepLis[1].textContent = L('prepScreen.advice2');
+      if(prepLis[2]) prepLis[2].textContent = L('prepScreen.advice3');
+      $('btnBackToIntro').textContent = L('buttons.back');
+      $('btnStartSurvey').textContent = L('buttons.continue');
+
+      // Survey
+      $('stepSurvey').querySelector('.muted').textContent = L('survey.hint');
+      $('btnPrevQ').textContent = L('buttons.back');
+
+      // Done
+      $('stepDone').querySelector('h3').textContent = L('thankYou.heading');
+      $('stepDone').querySelector('p').textContent = L('thankYou.text');
+
+      // Re-render current question if in survey
+      if(state.step === 'survey') renderQuestion();
+    }
+
+    $('langSelect').addEventListener('change', (e) => applyLanguage(e.target.value));
+
+    // Init: pre-load both locales + questions from CSV
+    (async () => {
+      await Promise.all([loadLocale('da'), loadLocale('en')]);
+      await applyLanguage('da');
+      QUESTIONS = questionsPerLang['da'] || [];
+      loadProfiles();
+      setStep('code');
+    })();
+  </script>
+</body>
+</html>
