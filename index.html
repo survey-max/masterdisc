@@ -193,9 +193,13 @@
   </div>
 
   <script>
-    const VERIFY_CODE_URL = 'https://europe-west1-disclinedb.cloudfunctions.net/verifyCode';
-    const SUBMIT_URL = 'https://europe-west1-disclinedb.cloudfunctions.net/submit';
-    const LIST_PUBLIC_PROFILES_URL = 'https://europe-west1-disclinedb.cloudfunctions.net/listPublicProfiles';
+    // DISC intake now runs on the Supabase-backed Next.js API (coachersuniversed),
+    // not Firebase Cloud Functions. Override window.DISC_API_BASE before this
+    // script to point at a staging deployment.
+    const DISC_API_BASE = (window.DISC_API_BASE || 'https://www.unicoachers.dk').replace(/\/$/, '');
+    const VERIFY_CODE_URL = DISC_API_BASE + '/api/disc/verify-code';
+    const SUBMIT_URL = DISC_API_BASE + '/api/disc/submit';
+    const LIST_PUBLIC_PROFILES_URL = DISC_API_BASE + '/api/disc/public-profiles';
     const FORCED_CHOICE_V2_MODEL = 'forced-choice';
     const FORCED_CHOICE_V2_VERSION = 'V2.2';
     const SCORED_IDS = Array.from({length:24}, (_,i)=>i+1);

@@ -372,20 +372,10 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-functions.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA54uIe0IyQXOxms9ZPI9nKedCXR_hU-nU",
-      authDomain: "disclinedb.firebaseapp.com",
-      projectId: "disclinedb",
-      storageBucket: "disclinedb.firebasestorage.app",
-      messagingSenderId: "282746414127",
-      appId: "1:282746414127:web:72df4cfe6c7a2461df12da"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const fns = getFunctions(app, "europe-west1");
+    // Company profiles now come from the Supabase-backed Next.js API
+    // (coachersuniversed), not Firebase Cloud Functions. Override
+    // window.DISC_API_BASE before this script to point at a staging deployment.
+    const DISC_API_BASE = (window.DISC_API_BASE || 'https://www.unicoachers.dk').replace(/\/$/, '');
 
     const contentDiv = document.getElementById('content');
     const companyBadge = document.getElementById('companyBadge');
@@ -408,16 +398,18 @@
       }
 
       try {
-        // Use Cloud Function to get company profiles (avoids permission issues)
-        const getCompanyProfiles = httpsCallable(fns, 'getCompanyProfiles');
-        const result = await getCompanyProfiles({ companySlug });
+        // Supabase-backed API endpoint (replaces the getCompanyProfiles callable).
+        const response = await fetch(
+          DISC_API_BASE + '/api/disc/company-profiles?companySlug=' + encodeURIComponent(companySlug),
+        );
+        const result = await response.json().catch(() => ({}));
 
-        if (!result.data.ok) {
+        if (!response.ok || !result.ok) {
           showError('Fejl ved indlæsning', 'Kunne ikke indlæse profiler');
           return;
         }
 
-        const { company, profiles } = result.data;
+        const { company, profiles } = result;
         currentCompany = company;
 
         // Sort profiles alphabetically by name (ASC)
