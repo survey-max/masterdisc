@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "sv",
+    "title": "DISC-analys"
+  },
+  "codeGate": {
+    "heading": "Ange konsultkod",
+    "button": "Fortsätt",
+    "language": "Språk",
+    "errorEmpty": "Ange en åtkomstkod.",
+    "errorInvalid": "Ogiltig kod. Kontrollera koden och försök igen."
+  },
+  "introForm": {
+    "heading": "Välkommen till DISC-analysen",
+    "date": "Datum:",
+    "firstName": "Förnamn:",
+    "lastName": "Efternamn:",
+    "gender": "Kön:",
+    "genderMale": "Man",
+    "genderFemale": "Kvinna",
+    "genderOther": "Annat",
+    "email": "E-post:",
+    "employment": "Anställning:",
+    "employmentQuestion": "Är din DISC-profil en del av en möjlig rekryteringsprocess?",
+    "employmentYes": "Ja",
+    "employmentNo": "Nej",
+    "company": "Företag:",
+    "consentHeading": "Samtycke till behandling av personuppgifter",
+    "consentMainText": "Jag samtycker till att mina personuppgifter behandlas av Coachers ApS i syfte att skapa min DISC-profil.",
+    "consentProcessingIntro": "Behandlingen omfattar:",
+    "consentBullet1": "AI-baserad analys via Anthropic (USA) för att skapa profilen",
+    "consentBullet2": "Delning av min DISC-profil med min tilldelade konsult",
+    "consentBullet3": "Utskick av PDF-rapport via e-post",
+    "consentRetention": "Mina uppgifter lagras i 90 dagar (rekryteringsrelaterat) eller i upp till 24 månader (andra ändamål) och kan raderas på begäran.",
+    "consentTransfer": "Personuppgifter överförs till ett tredjeland (USA) med stöd av EU-kommissionens standardavtalsklausuler.",
+    "consentPrivacyLink": "Läs vår fullständiga integritetspolicy här:",
+    "consentDownloadPdf": "Ladda ner PDF",
+    "consentAgeConfirm": "Jag bekräftar att jag är minst 16 år",
+    "consentWithdrawalTitle": "Återkallande av samtycke",
+    "consentWithdrawalText": "Jag kan när som helst återkalla mitt samtycke genom att kontakta info@coachers.dk. Vid återkallande raderas alla personuppgifter och svar utan onödigt dröjsmål, om inte annan lagstiftning kräver fortsatt lagring.",
+    "startButton": "Starta analysen"
+  },
+  "validation": {
+    "date": "Datum saknas.",
+    "firstName": "Förnamn saknas.",
+    "lastName": "Efternamn saknas.",
+    "gender": "Kön saknas.",
+    "email": "E-post saknas.",
+    "emailInvalid": "E-postadressen är ogiltig.",
+    "company": "Företag saknas.",
+    "employment": "Anställningsuppgift saknas.",
+    "consent": "Du måste samtycka till behandlingen av personuppgifter.",
+    "age": "Du måste bekräfta att du är minst 16 år."
+  },
+  "prepScreen": {
+    "heading": "Bra att tänka på",
+    "advice1": "Se till att du kan koncentrera dig utan avbrott.",
+    "advice2": "Avsätt cirka 10–15 minuter för att genomföra analysen.",
+    "advice3": "Välj det svar som känns mest naturligt för dig."
+  },
+  "survey": {
+    "hint": "Välj ett påstående som passar MEST och ett som passar MINST.",
+    "most": "MEST",
+    "least": "MINST",
+    "questionOf": "FRÅGA {n} AV {total}",
+    "errorSame": "MEST och MINST kan inte vara samma påstående.",
+    "errorBothRequired": "Välj både MEST och MINST innan du fortsätter.",
+    "errorAllRequired": "Alla frågor måste ha både MEST och MINST, och de får inte vara samma påstående.",
+    "submitFail": "Det gick inte att skicka in svaret ({err}). Försök igen."
+  },
+  "buttons": {
+    "back": "Tillbaka",
+    "next": "Nästa",
+    "continue": "Fortsätt",
+    "finish": "Slutför och skicka"
+  },
+  "thankYou": {
+    "heading": "Tack för ditt svar!",
+    "text": "Ditt DISC V2.2-svar har tagits emot och rapporten behandlas."
+  }
+}
