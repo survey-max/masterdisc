@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "de",
+    "title": "DISC-Analyse"
+  },
+  "codeGate": {
+    "heading": "Beratercode eingeben",
+    "button": "Weiter",
+    "language": "Sprache",
+    "errorEmpty": "Bitte geben Sie einen Zugangscode ein.",
+    "errorInvalid": "Ungültiger Code. Bitte prüfen und erneut versuchen."
+  },
+  "introForm": {
+    "heading": "Willkommen zur DISC-Analyse",
+    "date": "Datum:",
+    "firstName": "Vorname:",
+    "lastName": "Nachname:",
+    "gender": "Geschlecht:",
+    "genderMale": "Männlich",
+    "genderFemale": "Weiblich",
+    "genderOther": "Anderes",
+    "email": "E-Mail:",
+    "employment": "Anstellung:",
+    "employmentQuestion": "Ist Ihr DISC-Profil Teil eines möglichen Bewerbungsprozesses?",
+    "employmentYes": "Ja",
+    "employmentNo": "Nein",
+    "company": "Unternehmen:",
+    "consentHeading": "Einwilligung zur Datenverarbeitung",
+    "consentMainText": "Ich willige ein, dass meine personenbezogenen Daten von Coachers ApS zum Zweck der Erstellung meines DISC-Profils verarbeitet werden.",
+    "consentProcessingIntro": "Die Verarbeitung umfasst:",
+    "consentBullet1": "KI-basierte Analyse über Anthropic (USA) zur Profilerstellung",
+    "consentBullet2": "Weitergabe meines DISC-Profils an meinen zugewiesenen Berater",
+    "consentBullet3": "Versand des PDF-Berichts per E-Mail",
+    "consentRetention": "Meine Daten werden 90 Tage (bewerbungsbezogen) oder bis zu 24 Monate (andere Zwecke) gespeichert und können auf Anfrage gelöscht werden.",
+    "consentTransfer": "Personenbezogene Daten werden auf Grundlage der Standardvertragsklauseln der EU-Kommission in ein Drittland (USA) übermittelt.",
+    "consentPrivacyLink": "Lesen Sie unsere vollständige Datenschutzerklärung hier:",
+    "consentDownloadPdf": "PDF herunterladen",
+    "consentAgeConfirm": "Ich bestätige, dass ich mindestens 16 Jahre alt bin",
+    "consentWithdrawalTitle": "Widerruf der Einwilligung",
+    "consentWithdrawalText": "Ich kann meine Einwilligung jederzeit widerrufen, indem ich info@coachers.dk kontaktiere. Bei Widerruf werden alle personenbezogenen Daten und Antworten unverzüglich gelöscht, sofern keine andere Gesetzgebung eine weitere Aufbewahrung verlangt.",
+    "startButton": "Analyse starten"
+  },
+  "validation": {
+    "date": "Datum fehlt.",
+    "firstName": "Vorname fehlt.",
+    "lastName": "Nachname fehlt.",
+    "gender": "Geschlecht fehlt.",
+    "email": "E-Mail fehlt.",
+    "emailInvalid": "E-Mail ist ungültig.",
+    "company": "Unternehmen fehlt.",
+    "employment": "Anstellung fehlt.",
+    "consent": "Sie müssen der Datenverarbeitung zustimmen.",
+    "age": "Sie müssen bestätigen, dass Sie mindestens 16 Jahre alt sind."
+  },
+  "prepScreen": {
+    "heading": "Gute Hinweise",
+    "advice1": "Sorgen Sie dafür, dass Sie sich ohne Unterbrechungen konzentrieren können.",
+    "advice2": "Planen Sie etwa 10-15 Minuten für die Analyse ein.",
+    "advice3": "Wählen Sie die Antwort, die Ihnen am natürlichsten erscheint."
+  },
+  "survey": {
+    "hint": "Wählen Sie eine Aussage, die am MEISTEN passt, und eine, die am WENIGSTEN passt.",
+    "most": "MEISTEN",
+    "least": "WENIGSTEN",
+    "questionOf": "FRAGE {n} VON {total}",
+    "errorSame": "MEISTEN und WENIGSTEN dürfen nicht dieselbe Aussage sein.",
+    "errorBothRequired": "Wählen Sie MEISTEN und WENIGSTEN, bevor Sie fortfahren.",
+    "errorAllRequired": "Alle Fragen müssen sowohl MEISTEN als auch WENIGSTEN haben, und sie dürfen nicht gleich sein.",
+    "submitFail": "Antwort konnte nicht gesendet werden ({err}). Bitte versuchen Sie es erneut."
+  },
+  "buttons": {
+    "back": "Zurück",
+    "next": "Weiter",
+    "continue": "Weiter",
+    "finish": "Abschließen und senden"
+  },
+  "thankYou": {
+    "heading": "Vielen Dank für Ihre Antwort!",
+    "text": "Ihre DISC V2.2-Antwort wurde empfangen und der Bericht wird verarbeitet."
+  }
+}

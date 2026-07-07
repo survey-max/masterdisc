@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "es",
+    "title": "Análisis DISC"
+  },
+  "codeGate": {
+    "heading": "Introduzca el código del consultor",
+    "button": "Continuar",
+    "language": "Idioma",
+    "errorEmpty": "Introduzca un código de acceso.",
+    "errorInvalid": "Código no válido. Compruébelo e inténtelo de nuevo."
+  },
+  "introForm": {
+    "heading": "Bienvenido al análisis DISC",
+    "date": "Fecha:",
+    "firstName": "Nombre:",
+    "lastName": "Apellido:",
+    "gender": "Género:",
+    "genderMale": "Hombre",
+    "genderFemale": "Mujer",
+    "genderOther": "Otro",
+    "email": "Correo electrónico:",
+    "employment": "Empleo:",
+    "employmentQuestion": "¿Su perfil DISC forma parte de un posible proceso de contratación?",
+    "employmentYes": "Sí",
+    "employmentNo": "No",
+    "company": "Empresa:",
+    "consentHeading": "Consentimiento para el tratamiento de datos",
+    "consentMainText": "Doy mi consentimiento para que Coachers ApS procese mis datos personales con el fin de generar mi perfil DISC.",
+    "consentProcessingIntro": "El tratamiento incluye:",
+    "consentBullet1": "Análisis basado en IA mediante Anthropic (EE. UU.) para generar el perfil",
+    "consentBullet2": "Compartir mi perfil DISC con mi consultor asignado",
+    "consentBullet3": "Envío del informe PDF por correo electrónico",
+    "consentRetention": "Mis datos se conservan durante 90 días (relacionados con contratación) o hasta 24 meses (otros fines), y pueden eliminarse previa solicitud.",
+    "consentTransfer": "Los datos personales se transfieren a un tercer país (EE. UU.) con base en las cláusulas contractuales tipo de la Comisión Europea.",
+    "consentPrivacyLink": "Lea nuestra política de privacidad completa aquí:",
+    "consentDownloadPdf": "Descargar PDF",
+    "consentAgeConfirm": "Confirmo que tengo al menos 16 años",
+    "consentWithdrawalTitle": "Retirada del consentimiento",
+    "consentWithdrawalText": "Puedo retirar mi consentimiento en cualquier momento contactando con info@coachers.dk. Tras la retirada, todos los datos personales y respuestas se eliminarán sin demora indebida, salvo que otra legislación exija su conservación.",
+    "startButton": "Iniciar el análisis"
+  },
+  "validation": {
+    "date": "Falta la fecha.",
+    "firstName": "Falta el nombre.",
+    "lastName": "Falta el apellido.",
+    "gender": "Falta el género.",
+    "email": "Falta el correo electrónico.",
+    "emailInvalid": "El correo electrónico no es válido.",
+    "company": "Falta la empresa.",
+    "employment": "Falta el empleo.",
+    "consent": "Debe aceptar el tratamiento de datos.",
+    "age": "Debe confirmar que tiene al menos 16 años."
+  },
+  "prepScreen": {
+    "heading": "Buenos consejos",
+    "advice1": "Asegúrese de poder concentrarse sin interrupciones.",
+    "advice2": "Reserve aproximadamente 10-15 minutos para completar el análisis.",
+    "advice3": "Elija la respuesta que le parezca más natural."
+  },
+  "survey": {
+    "hint": "Elija una opción que encaje MÁS y una que encaje MENOS.",
+    "most": "MÁS",
+    "least": "MENOS",
+    "questionOf": "PREGUNTA {n} DE {total}",
+    "errorSame": "MÁS y MENOS no pueden ser la misma afirmación.",
+    "errorBothRequired": "Elija tanto MÁS como MENOS antes de continuar.",
+    "errorAllRequired": "Todas las preguntas deben tener MÁS y MENOS, y no pueden ser iguales.",
+    "submitFail": "No se pudo enviar la respuesta ({err}). Inténtelo de nuevo."
+  },
+  "buttons": {
+    "back": "Atrás",
+    "next": "Siguiente",
+    "continue": "Continuar",
+    "finish": "Finalizar y enviar"
+  },
+  "thankYou": {
+    "heading": "¡Gracias por su respuesta!",
+    "text": "Su respuesta DISC V2.2 se ha recibido y el informe se está procesando."
+  }
+}

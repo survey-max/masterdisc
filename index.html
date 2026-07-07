@@ -73,6 +73,9 @@
         <option value="da">DA</option>
         <option value="en">EN</option>
         <option value="sv">SV</option>
+        <option value="de">DE</option>
+        <option value="es">ES</option>
+        <option value="pl">PL</option>
       </select>
     </div>
     <img src="assets/masterDisc_logo.png" alt="Master DISC" style="height:60px;">
@@ -617,7 +620,7 @@
 
     // Init: pre-load all locales + questions from CSV
     (async () => {
-      await Promise.all([loadLocale('da'), loadLocale('en'), loadLocale('sv')]);
+      await Promise.all(['da', 'en', 'sv', 'de', 'es', 'pl'].map(loadLocale));
       await applyLanguage('da');
       QUESTIONS = questionsPerLang['da'] || [];
       loadProfiles();

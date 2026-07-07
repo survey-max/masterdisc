@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "language": "pl",
+    "title": "Analiza DISC"
+  },
+  "codeGate": {
+    "heading": "Wpisz kod konsultanta",
+    "button": "Kontynuuj",
+    "language": "Język",
+    "errorEmpty": "Wpisz kod dostępu.",
+    "errorInvalid": "Nieprawidłowy kod. Sprawdź go i spróbuj ponownie."
+  },
+  "introForm": {
+    "heading": "Witamy w analizie DISC",
+    "date": "Data:",
+    "firstName": "Imię:",
+    "lastName": "Nazwisko:",
+    "gender": "Płeć:",
+    "genderMale": "Mężczyzna",
+    "genderFemale": "Kobieta",
+    "genderOther": "Inna",
+    "email": "E-mail:",
+    "employment": "Zatrudnienie:",
+    "employmentQuestion": "Czy Twój profil DISC jest częścią potencjalnego procesu rekrutacyjnego?",
+    "employmentYes": "Tak",
+    "employmentNo": "Nie",
+    "company": "Firma:",
+    "consentHeading": "Zgoda na przetwarzanie danych",
+    "consentMainText": "Wyrażam zgodę na przetwarzanie moich danych osobowych przez Coachers ApS w celu wygenerowania mojego profilu DISC.",
+    "consentProcessingIntro": "Przetwarzanie obejmuje:",
+    "consentBullet1": "Analizę opartą na AI przez Anthropic (USA) w celu wygenerowania profilu",
+    "consentBullet2": "Udostępnienie mojego profilu DISC przypisanemu konsultantowi",
+    "consentBullet3": "Wysłanie raportu PDF pocztą e-mail",
+    "consentRetention": "Moje dane są przechowywane przez 90 dni (w związku z rekrutacją) lub do 24 miesięcy (inne cele) i mogą zostać usunięte na żądanie.",
+    "consentTransfer": "Dane osobowe są przekazywane do państwa trzeciego (USA) na podstawie standardowych klauzul umownych Komisji Europejskiej.",
+    "consentPrivacyLink": "Przeczytaj pełną politykę prywatności tutaj:",
+    "consentDownloadPdf": "Pobierz PDF",
+    "consentAgeConfirm": "Potwierdzam, że mam co najmniej 16 lat",
+    "consentWithdrawalTitle": "Wycofanie zgody",
+    "consentWithdrawalText": "Mogę w każdej chwili wycofać zgodę, kontaktując się z info@coachers.dk. Po wycofaniu zgody wszystkie dane osobowe i odpowiedzi zostaną usunięte bez zbędnej zwłoki, chyba że inne przepisy wymagają dalszego przechowywania.",
+    "startButton": "Rozpocznij analizę"
+  },
+  "validation": {
+    "date": "Brakuje daty.",
+    "firstName": "Brakuje imienia.",
+    "lastName": "Brakuje nazwiska.",
+    "gender": "Brakuje płci.",
+    "email": "Brakuje adresu e-mail.",
+    "emailInvalid": "Adres e-mail jest nieprawidłowy.",
+    "company": "Brakuje firmy.",
+    "employment": "Brakuje informacji o zatrudnieniu.",
+    "consent": "Musisz wyrazić zgodę na przetwarzanie danych.",
+    "age": "Musisz potwierdzić, że masz co najmniej 16 lat."
+  },
+  "prepScreen": {
+    "heading": "Dobre rady",
+    "advice1": "Upewnij się, że możesz się skoncentrować bez przerw.",
+    "advice2": "Przeznacz około 10-15 minut na wypełnienie analizy.",
+    "advice3": "Wybierz odpowiedź, która wydaje Ci się najbardziej naturalna."
+  },
+  "survey": {
+    "hint": "Wybierz jedną odpowiedź, która pasuje NAJBARDZIEJ, i jedną, która pasuje NAJMNIEJ.",
+    "most": "NAJBARDZIEJ",
+    "least": "NAJMNIEJ",
+    "questionOf": "PYTANIE {n} Z {total}",
+    "errorSame": "NAJBARDZIEJ i NAJMNIEJ nie mogą być tą samą odpowiedzią.",
+    "errorBothRequired": "Wybierz zarówno NAJBARDZIEJ, jak i NAJMNIEJ, zanim przejdziesz dalej.",
+    "errorAllRequired": "Każde pytanie musi mieć odpowiedź NAJBARDZIEJ i NAJMNIEJ, i nie mogą być one takie same.",
+    "submitFail": "Nie udało się wysłać odpowiedzi ({err}). Spróbuj ponownie."
+  },
+  "buttons": {
+    "back": "Wstecz",
+    "next": "Dalej",
+    "continue": "Kontynuuj",
+    "finish": "Zakończ i wyślij"
+  },
+  "thankYou": {
+    "heading": "Dziękujemy za odpowiedź!",
+    "text": "Twoja odpowiedź DISC V2.2 została odebrana, a raport jest przetwarzany."
+  }
+}
