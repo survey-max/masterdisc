@@ -146,7 +146,7 @@
             </ul>
             <p>Mine data opbevares i 90 dage (ansættelsesrelateret) eller op til 24 måneder (øvrige formål) og kan slettes på anmodning.</p>
             <p>Der sker overførsel af personoplysninger til et tredjeland (USA) baseret på EU-Kommissionens standardkontraktbestemmelser.</p>
-            <p class="consent-link">Læs vores fulde privatlivspolitik her: <a href="https://storage.googleapis.com/disclinedb.firebasestorage.app/public/MasterDISC-Vilkaar-og-Betingelser.pdf" target="_blank" rel="noopener">Download PDF</a></p>
+            <p class="consent-link">Læs vores fulde privatlivspolitik her: <a href="https://bbiepwhqymfdbtzolmdi.supabase.co/storage/v1/object/public/disc-public/MasterDISC-Vilkaar-og-Betingelser.pdf" target="_blank" rel="noopener">Download PDF</a></p>
           </div>
 
           <div class="consent-checkbox-wrapper">
@@ -584,7 +584,7 @@
           if(ps[1]) ps[1].textContent = L('introForm.consentRetention');
           if(ps[2]) ps[2].textContent = L('introForm.consentTransfer');
           const linkP = cd.querySelector('.consent-link');
-          if(linkP) linkP.innerHTML = L('introForm.consentPrivacyLink') + ' <a href="https://storage.googleapis.com/disclinedb.firebasestorage.app/public/MasterDISC-Vilkaar-og-Betingelser.pdf" target="_blank" rel="noopener">' + L('introForm.consentDownloadPdf') + '</a>';
+          if(linkP) linkP.innerHTML = L('introForm.consentPrivacyLink') + ' <a href="https://bbiepwhqymfdbtzolmdi.supabase.co/storage/v1/object/public/disc-public/MasterDISC-Vilkaar-og-Betingelser.pdf" target="_blank" rel="noopener">' + L('introForm.consentDownloadPdf') + '</a>';
         }
         if(consentLabels[1]) consentLabels[1].textContent = L('introForm.consentAgeConfirm');
         const cw = cs.querySelector('.consent-withdrawal');
