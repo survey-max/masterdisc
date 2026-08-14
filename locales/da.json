@@ -72,10 +72,18 @@
     "back": "Tilbage",
     "next": "Næste",
     "continue": "Fortsæt",
-    "finish": "Afslut og indsend"
+    "finish": "Afslut og indsend",
+    "sending": "Sender..."
   },
   "thankYou": {
     "heading": "Tak for din besvarelse!",
-    "text": "Din DISC V2.2-besvarelse er modtaget, og rapporten behandles som normalt."
+    "text": "Din DISC V2.2-besvarelse er modtaget, og rapporten behandles som normalt.",
+    "receiptTitle": "Kvittering",
+    "receiptName": "Navn",
+    "receiptEmail": "E-mail",
+    "receiptCode": "Kode",
+    "receiptReference": "Reference",
+    "receiptTime": "Modtaget",
+    "noResubmit": "Din besvarelse er gemt. Du skal ikke indsende igen – en ny indsendelse opretter en dublet."
   }
 }

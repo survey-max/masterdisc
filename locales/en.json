@@ -72,10 +72,18 @@
     "back": "Back",
     "next": "Next",
     "continue": "Continue",
-    "finish": "Finish and Submit"
+    "finish": "Finish and Submit",
+    "sending": "Sending..."
   },
   "thankYou": {
     "heading": "Thank you for your response!",
-    "text": "Your DISC V2.2 response has been received and the report is being processed."
+    "text": "Your DISC V2.2 response has been received and the report is being processed.",
+    "receiptTitle": "Receipt",
+    "receiptName": "Name",
+    "receiptEmail": "Email",
+    "receiptCode": "Code",
+    "receiptReference": "Reference",
+    "receiptTime": "Received",
+    "noResubmit": "Your answers have been saved. There is no need to submit again – resubmitting creates a duplicate."
   }
 }

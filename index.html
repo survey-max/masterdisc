@@ -61,6 +61,14 @@
     .consent-withdrawal-title { font-weight:700; margin-bottom:4px; font-size:13px; }
     .consent-withdrawal p { margin:0; font-size:12px; color:#475569; line-height:1.5; }
     .step-intro-card { margin-bottom:16px; }
+    .done-check { width:64px; height:64px; margin:4px auto 14px; border-radius:999px; background:#dcfce7; color:var(--ok); display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:700; }
+    .receipt { text-align:left; max-width:460px; margin:18px auto 0; border:1px solid var(--line); border-radius:10px; background:#f8fafc; padding:14px 16px; }
+    .receipt h4 { margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+    .receipt-row { display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-top:1px solid #e6ebf2; font-size:14px; }
+    .receipt-row:first-of-type { border-top:0; }
+    .receipt-row span { color:var(--muted); }
+    .receipt-row strong { text-align:right; word-break:break-word; }
+    .done-notice { max-width:460px; margin:14px auto 0; background:#fffbeb; border:1px solid #fcd34d; color:#92400e; border-radius:10px; padding:12px 14px; font-size:14px; text-align:left; }
     @media (max-width:720px){ .row{grid-template-columns:1fr;} h1{font-size:34px;} h2{font-size:34px;} .intro-shell{max-width:100%;} .consent-details{margin-left:0;} }
   </style>
 </head>
@@ -191,8 +199,18 @@
     </section>
 
     <section id="stepDone" class="card hidden" style="text-align:center;">
-      <h3 class="ok">Tak for din besvarelse!</h3>
-      <p class="muted">Din DISC V2.2-besvarelse er modtaget, og rapporten behandles som normalt.</p>
+      <div class="done-check">&#10003;</div>
+      <h3 id="doneHeading" class="ok">Tak for din besvarelse!</h3>
+      <p id="doneText" class="muted">Din DISC V2.2-besvarelse er modtaget, og rapporten behandles som normalt.</p>
+      <div class="receipt">
+        <h4 id="rcpTitle">Kvittering</h4>
+        <div class="receipt-row"><span id="rcpNameLabel">Navn</span><strong id="rcpName"></strong></div>
+        <div class="receipt-row"><span id="rcpEmailLabel">E-mail</span><strong id="rcpEmail"></strong></div>
+        <div class="receipt-row"><span id="rcpCodeLabel">Kode</span><strong id="rcpCode"></strong></div>
+        <div class="receipt-row"><span id="rcpRefLabel">Reference</span><strong id="rcpRef"></strong></div>
+        <div class="receipt-row"><span id="rcpTimeLabel">Modtaget</span><strong id="rcpTime"></strong></div>
+      </div>
+      <p id="doneNotice" class="done-notice">Din besvarelse er gemt. Du skal ikke indsende igen &ndash; genindsendelse opretter en dublet.</p>
     </section>
   </div>
 
@@ -215,7 +233,8 @@
 
     const state = {
       step: 'code', submitMeta: null, questionOrder: [], optionOrder: {}, questionIndex: 0, selections: {},
-      surveyStartTs: null, profiles: [{slug:'basis',name:'Basisprofil'}], profileParam: '', companyParam: ''
+      surveyStartTs: null, profiles: [{slug:'basis',name:'Basisprofil'}], profileParam: '', companyParam: '',
+      submitting: false, submitted: false, receipt: null
     };
 
     const $ = (id) => document.getElementById(id);
@@ -382,6 +401,10 @@
     }
 
     async function submitSurvey(){
+      // Guard against double-submits: an in-flight request, or a second attempt
+      // after the answers were already accepted (would create a duplicate).
+      if(state.submitting) return;
+      if(state.submitted){ setStep('done'); return; }
       const f=introData();
       const ordered=state.questionOrder.map(id=>QUESTIONS.find(q=>q.id===id)).filter(Boolean);
       const missing = ordered.find(q=>!state.selections[q.id]?.most || !state.selections[q.id]?.least || state.selections[q.id]?.most===state.selections[q.id]?.least);
@@ -396,8 +419,9 @@
       const result = calculate(selectionRows,{durationSec});
       const validationSelections = selectionRows.filter(s=>VALIDATION_SET.has(s.questionId));
       const dateDDMMYYYY = toDDMMYYYY(f.date);
+      const respondentId = buildRespondentId(dateDDMMYYYY,f.firstName,f.lastName);
       const payload = {
-        participant: { name:[f.firstName,f.lastName].filter(Boolean).join(' '), email:f.email, company:f.company, gender:f.gender, date:dateDDMMYYYY, id:buildRespondentId(dateDDMMYYYY,f.firstName,f.lastName), ansaettelse:f.employment, profile:f.profile, language:currentLang },
+        participant: { name:[f.firstName,f.lastName].filter(Boolean).join(' '), email:f.email, company:f.company, gender:f.gender, date:dateDDMMYYYY, id:respondentId, ansaettelse:f.employment, profile:f.profile, language:currentLang },
         answers: {
           model: FORCED_CHOICE_V2_MODEL,
           modelVersion: FORCED_CHOICE_V2_VERSION,
@@ -409,17 +433,42 @@
         consent: { dataProcessing:f.consentDataProcessing, ageConfirmation:f.consentAge, timestamp:new Date().toISOString(), version:'2.0' },
         validity: result.validity
       };
+      state.submitting = true;
       $('btnNextQ').disabled = true;
+      $('btnNextQ').textContent = L('buttons.sending');
       try{
         const res=await fetch(SUBMIT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({submitCode:state.submitMeta.submitCode,payload})});
         const data=await res.json().catch(()=>({}));
         if(!res.ok || !data.ok) throw new Error(data.error||'submit_failed');
+        state.submitted = true;
+        state.receipt = {
+          name: payload.participant.name,
+          email: f.email,
+          code: state.submitMeta.submitCode,
+          reference: data.submissionId || data.id || respondentId,
+          time: new Date(finishedAt)
+        };
+        renderReceipt();
         setStep('done');
       }catch(err){
         $('submitError').textContent = L('survey.submitFail').replace('{err}', err.message || 'Unknown error');
       }finally{
-        $('btnNextQ').disabled = false;
+        state.submitting = false;
+        if(!state.submitted){
+          $('btnNextQ').disabled = false;
+          $('btnNextQ').textContent = L('buttons.finish');
+        }
       }
+    }
+
+    function renderReceipt(){
+      const r = state.receipt;
+      if(!r) return;
+      $('rcpName').textContent = r.name || '-';
+      $('rcpEmail').textContent = r.email || '-';
+      $('rcpCode').textContent = r.code || '-';
+      $('rcpRef').textContent = r.reference || '-';
+      $('rcpTime').textContent = r.time.toLocaleString(currentLang);
     }
 
     async function loadProfiles(){
@@ -609,8 +658,16 @@
       $('btnPrevQ').textContent = L('buttons.back');
 
       // Done
-      $('stepDone').querySelector('h3').textContent = L('thankYou.heading');
-      $('stepDone').querySelector('p').textContent = L('thankYou.text');
+      $('doneHeading').textContent = L('thankYou.heading');
+      $('doneText').textContent = L('thankYou.text');
+      $('rcpTitle').textContent = L('thankYou.receiptTitle');
+      $('rcpNameLabel').textContent = L('thankYou.receiptName');
+      $('rcpEmailLabel').textContent = L('thankYou.receiptEmail');
+      $('rcpCodeLabel').textContent = L('thankYou.receiptCode');
+      $('rcpRefLabel').textContent = L('thankYou.receiptReference');
+      $('rcpTimeLabel').textContent = L('thankYou.receiptTime');
+      $('doneNotice').textContent = L('thankYou.noResubmit');
+      renderReceipt();
 
       // Re-render current question if in survey
       if(state.step === 'survey') renderQuestion();

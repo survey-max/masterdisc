@@ -72,10 +72,18 @@
     "back": "Atrás",
     "next": "Siguiente",
     "continue": "Continuar",
-    "finish": "Finalizar y enviar"
+    "finish": "Finalizar y enviar",
+    "sending": "Enviando..."
   },
   "thankYou": {
     "heading": "¡Gracias por su respuesta!",
-    "text": "Su respuesta DISC V2.2 se ha recibido y el informe se está procesando."
+    "text": "Su respuesta DISC V2.2 se ha recibido y el informe se está procesando.",
+    "receiptTitle": "Comprobante",
+    "receiptName": "Nombre",
+    "receiptEmail": "Correo electrónico",
+    "receiptCode": "Código",
+    "receiptReference": "Referencia",
+    "receiptTime": "Recibido",
+    "noResubmit": "Tus respuestas se han guardado. No es necesario enviarlas de nuevo: un nuevo envío crea un duplicado."
   }
 }

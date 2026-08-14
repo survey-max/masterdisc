@@ -72,10 +72,18 @@
     "back": "Wstecz",
     "next": "Dalej",
     "continue": "Kontynuuj",
-    "finish": "Zakończ i wyślij"
+    "finish": "Zakończ i wyślij",
+    "sending": "Wysyłanie..."
   },
   "thankYou": {
     "heading": "Dziękujemy za odpowiedź!",
-    "text": "Twoja odpowiedź DISC V2.2 została odebrana, a raport jest przetwarzany."
+    "text": "Twoja odpowiedź DISC V2.2 została odebrana, a raport jest przetwarzany.",
+    "receiptTitle": "Potwierdzenie",
+    "receiptName": "Imię i nazwisko",
+    "receiptEmail": "E-mail",
+    "receiptCode": "Kod",
+    "receiptReference": "Numer referencyjny",
+    "receiptTime": "Otrzymano",
+    "noResubmit": "Twoje odpowiedzi zostały zapisane. Nie musisz wysyłać ich ponownie – ponowne wysłanie utworzy duplikat."
   }
 }

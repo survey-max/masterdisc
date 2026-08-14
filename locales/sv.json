@@ -72,10 +72,18 @@
     "back": "Tillbaka",
     "next": "Nästa",
     "continue": "Fortsätt",
-    "finish": "Slutför och skicka"
+    "finish": "Slutför och skicka",
+    "sending": "Skickar..."
   },
   "thankYou": {
     "heading": "Tack för ditt svar!",
-    "text": "Ditt DISC V2.2-svar har tagits emot och rapporten behandlas."
+    "text": "Ditt DISC V2.2-svar har tagits emot och rapporten behandlas.",
+    "receiptTitle": "Kvitto",
+    "receiptName": "Namn",
+    "receiptEmail": "E-post",
+    "receiptCode": "Kod",
+    "receiptReference": "Referens",
+    "receiptTime": "Mottaget",
+    "noResubmit": "Dina svar är sparade. Du behöver inte skicka in igen – en ny inskickning skapar en dubblett."
   }
 }
