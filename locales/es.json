@@ -77,13 +77,6 @@
   },
   "thankYou": {
     "heading": "¡Gracias por su respuesta!",
-    "text": "Su respuesta DISC V2.2 se ha recibido y el informe se está procesando.",
-    "receiptTitle": "Comprobante",
-    "receiptName": "Nombre",
-    "receiptEmail": "Correo electrónico",
-    "receiptCode": "Código",
-    "receiptReference": "Referencia",
-    "receiptTime": "Recibido",
-    "noResubmit": "Tus respuestas se han guardado. No es necesario enviarlas de nuevo: un nuevo envío crea un duplicado."
+    "text": "Su respuesta pasará por nuestro sistema y se elaborará el informe. Así que ya no tiene que hacer nada más."
   }
 }

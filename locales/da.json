@@ -77,13 +77,6 @@
   },
   "thankYou": {
     "heading": "Tak for din besvarelse!",
-    "text": "Din DISC V2.2-besvarelse er modtaget, og rapporten behandles som normalt.",
-    "receiptTitle": "Kvittering",
-    "receiptName": "Navn",
-    "receiptEmail": "E-mail",
-    "receiptCode": "Kode",
-    "receiptReference": "Reference",
-    "receiptTime": "Modtaget",
-    "noResubmit": "Din besvarelse er gemt. Du skal ikke indsende igen – en ny indsendelse opretter en dublet."
+    "text": "Din besvarelse ville gå igennem vores system og rapporten ville blive udarbejdet. Så nu behøver du ikke at gøre mere."
   }
 }

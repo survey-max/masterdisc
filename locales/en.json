@@ -77,13 +77,6 @@
   },
   "thankYou": {
     "heading": "Thank you for your response!",
-    "text": "Your DISC V2.2 response has been received and the report is being processed.",
-    "receiptTitle": "Receipt",
-    "receiptName": "Name",
-    "receiptEmail": "Email",
-    "receiptCode": "Code",
-    "receiptReference": "Reference",
-    "receiptTime": "Received",
-    "noResubmit": "Your answers have been saved. There is no need to submit again – resubmitting creates a duplicate."
+    "text": "Your response will go through our system and the report will be prepared. So there is nothing more you need to do."
   }
 }

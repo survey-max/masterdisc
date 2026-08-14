@@ -77,13 +77,6 @@
   },
   "thankYou": {
     "heading": "Tack för ditt svar!",
-    "text": "Ditt DISC V2.2-svar har tagits emot och rapporten behandlas.",
-    "receiptTitle": "Kvitto",
-    "receiptName": "Namn",
-    "receiptEmail": "E-post",
-    "receiptCode": "Kod",
-    "receiptReference": "Referens",
-    "receiptTime": "Mottaget",
-    "noResubmit": "Dina svar är sparade. Du behöver inte skicka in igen – en ny inskickning skapar en dubblett."
+    "text": "Ditt svar går igenom vårt system och rapporten tas fram. Så nu behöver du inte göra något mer."
   }
 }

@@ -77,13 +77,6 @@
   },
   "thankYou": {
     "heading": "Vielen Dank für Ihre Antwort!",
-    "text": "Ihre DISC V2.2-Antwort wurde empfangen und der Bericht wird verarbeitet.",
-    "receiptTitle": "Bestätigung",
-    "receiptName": "Name",
-    "receiptEmail": "E-Mail",
-    "receiptCode": "Code",
-    "receiptReference": "Referenz",
-    "receiptTime": "Empfangen",
-    "noResubmit": "Ihre Antworten wurden gespeichert. Sie müssen nicht erneut absenden – ein erneutes Absenden erzeugt ein Duplikat."
+    "text": "Ihre Antwort durchläuft unser System und der Bericht wird erstellt. Sie müssen jetzt nichts weiter tun."
   }
 }
