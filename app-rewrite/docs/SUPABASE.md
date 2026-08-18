@@ -60,7 +60,7 @@ Kopiér `.env.example` til `.env.local`. `.env*` er git-ignoreret.
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | **ubrugt i denne skive** — al adgang er server-side. Med til skive 2 |
 | `PORTAL_API_TOKEN` | spærring foran `/api/portal/*`. Valgfri lokalt, **påkrævet i produktion** (ellers svarer routene 503) |
 | `PORTAL_DATA_MODE` | `direct` (standard) eller `api` |
-| `PORTAL_API_BASE_URL` | kun ved `api`-mode; ellers gættes `http://127.0.0.1:3000/app-rewrite` |
+| `PORTAL_API_BASE_URL` | kun ved `api`-mode; ellers gættes `http://127.0.0.1:3000` |
 | `MOCK_USER_ID` | hvilken bruger portalen vises som, indtil der findes auth |
 
 `@supabase/supabase-js` er **2.112.3**. Den genkender de nye nøgleformater
@@ -160,7 +160,7 @@ længere"), og som endnu et forsøg fjerner.
 
 ## API-routes
 
-Alle ligger under `/app-rewrite/api/portal/` (basePath). Alle svarer
+Alle ligger under `/api/portal/`. Alle svarer
 `{ fejl, kode }` på fejl, så modparten kan genskabe præcis samme fejlklasse.
 
 | Metode | Rute | Datalags-operation | Gate |
@@ -191,7 +191,7 @@ Tre regler holder routene ærlige:
    opslag, dev-brugerkonteksten selv bygger på. Token-gaten dækker den.
 
 `PORTAL_API_TOKEN` er spærringen, indtil skive 2 bærer identiteten: app'en er
-offentligt tilgængelig bag `masterdisc.dk/app-rewrite`, og der er ingen auth
+offentligt tilgængelig uden login, og der er ingen auth
 endnu. Mangler variablen i produktion, svarer routene **503** i stedet for at
 stå åbne.
 
@@ -263,7 +263,7 @@ Verificér i dashboardet: **Table editor → schema `portal`** (tre tabeller) og
 pnpm dev
 ```
 
-1. Åbn `http://localhost:3000/app-rewrite/jobmatch/` — listen kommer nu fra
+1. Åbn `http://localhost:3000/jobmatch/` — listen kommer nu fra
    Supabase. Du er Anna Eksempel (admin), så begge virksomheders poster vises.
 2. **Opret sag med PDF-upload:** vælg en PDF under "Tilføj rapport", udfyld navn,
    gem. Posten dukker op øverst. Verificér i dashboardet, at der er kommet én
@@ -279,7 +279,7 @@ pnpm dev
    rækken og objektet er væk.
 7. **Anden virksomheds sag afvises:** sæt `MOCK_USER_ID` til Bo Testesen (rollen
    `bruger`, virksomhed 1) i `.env.local`, genstart `pnpm dev`, og åbn
-   `/app-rewrite/jobmatch/filer/<id på Nordisk Industris post>/` → "Filen findes
+   `/jobmatch/filer/<id på Nordisk Industris post>/` → "Filen findes
    ikke, eller du har ikke adgang til den." Listen viser nu kun virksomhed 1.
    Bruger-id'erne står i `portal.users` (kolonnen `id`).
 
@@ -295,7 +295,7 @@ Genstart `pnpm dev` og gentag punkt 1–7. Alt skal opføre sig identisk — nu 
 hvert kald over `/api/portal/*`. Et kald uden token svarer 401:
 
 ```bash
-curl -i http://localhost:3000/app-rewrite/api/portal/archive/
+curl -i http://localhost:3000/api/portal/archive/
 ```
 
 ## 3. Dry-run på de rigtige data

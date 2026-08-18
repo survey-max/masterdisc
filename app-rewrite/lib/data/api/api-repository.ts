@@ -1,5 +1,3 @@
-import { BASE_PATH } from '@/lib/base-path';
-
 import {
   DataAccessError,
   DataCorruptError,
@@ -50,9 +48,9 @@ function baseUrl(): string {
   const configured = process.env.PORTAL_API_BASE_URL?.trim();
   if (configured) return configured.replace(/\/+$/, '');
   const vercelHost = process.env.VERCEL_URL?.trim();
-  if (vercelHost) return `https://${vercelHost}${BASE_PATH}`;
+  if (vercelHost) return `https://${vercelHost}`;
   const port = process.env.PORT?.trim() || '3000';
-  return `http://127.0.0.1:${port}${BASE_PATH}`;
+  return `http://127.0.0.1:${port}`;
 }
 
 function headers(viewer?: Viewer): Record<string, string> {

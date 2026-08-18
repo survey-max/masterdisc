@@ -1,5 +1,12 @@
 # Hosting: to Vercel-projekter, ét domæne
 
+> **Status:** proxy-løsningen nedenfor er droppet, og `basePath` er fjernet —
+> app'en serveres nu fra URL-roden. Testes på projektets egen
+> `*.vercel.app`-URL; cutover sker ved at skifte hovedprojektets Root
+> Directory til `app-rewrite`. Rewrite-reglerne for `/app-rewrite` i rodens
+> `vercel.json` er dermed døde og skal fjernes som en del af cutoveret.
+> Afsnittene herunder står tilbage som baggrund for, hvorfor præfikset fandtes.
+
 `masterdisc.dk/app-rewrite` findes ikke som rute i denne app. Den opstod som
 mappenavn, og fordi rod-repoet er et statisk site uden `package.json`, byggede
 Vercel aldrig app'en — den uploadede blot kildefilerne. Derfor 404.
@@ -31,14 +38,13 @@ Root Directory forbliver repo-roden. `.vercelignore` udelader nu `app-rewrite`,
 så kildekoden ikke længere serveres som filer — den blev tidligere hentet
 offentligt på fx `/app-rewrite/app/page.tsx`.
 
-## Hvorfor basePath
+## Præfikset der var
 
-`basePath: '/app-rewrite'` (se `lib/base-path.ts`) får app'en til at udsende
-ruter, `_next/`-assets og alt i `public/` under samme præfiks. Derfor dækker de
-to rewrite-regler det hele, og intet slipper ud i rodens navnerum.
-
-Sæt `BASE_PATH` til `''`, hvis app'en en dag skal ligge på et domæne-root — så
-skal proxy-reglerne fjernes igen.
+`basePath: '/app-rewrite'` fik app'en til at udsende ruter, `_next/`-assets og
+alt i `public/` under samme præfiks, så de to rewrite-regler dækkede det hele.
+Med proxyen droppet er præfikset væk igen: `next.config.ts` sætter ingen
+`basePath`, og `lib/base-path.ts` er slettet. Ruterne er rod-stier — `/`,
+`/opret/`, `/jobmatch/`, `/profil/`.
 
 ## Hvad proxyen koster
 

@@ -11,7 +11,7 @@ Engelsk i kode og kommentarer, dansk i al UI-tekst.
 pnpm install
 cp .env.example .env.local   # udfyld Supabase-URL og sb_secret_-nøglen
 pnpm seed                    # anonyme eksempeldata ind i portal-schemaet
-pnpm dev                     # http://localhost:3000/app-rewrite
+pnpm dev                     # http://localhost:3000
 pnpm typecheck               # tsc --noEmit
 pnpm build
 pnpm dry-run                 # hvad en migrering af legacy-php/data/ ville gøre

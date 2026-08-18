@@ -11,7 +11,7 @@ import type { UserRole } from '@/lib/data';
  * ============================================================================
  * Tre ting sker her, så hver route ikke skal huske dem:
  *
- * 1. TOKEN-GATE. App'en er offentligt tilgængelig bag masterdisc.dk/app-rewrite,
+ * 1. TOKEN-GATE. App'en er offentligt tilgængelig uden login,
  *    og der findes endnu ingen rigtig auth. Uden en spærring ville disse routes
  *    udlevere hele portalen til hvem som helst. PORTAL_API_TOKEN skal derfor
  *    matche headeren x-portal-api-token. Mangler variablen i produktion, svarer
