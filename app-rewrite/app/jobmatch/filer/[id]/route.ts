@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { repository } from '@/lib/data';
+import { isArchiveId } from '@/lib/jobmatch/archive-input';
 
 /**
  * Download of an archived file. Replaces arkiv.php ?a=hent.
@@ -8,8 +9,6 @@ import { repository } from '@/lib/data';
  * null when the entry belongs to another company and the viewer is not admin),
  * so this handler only maps it to a response.
  */
-
-const ID_PATTERN = /^[a-f0-9]{16}$/;
 
 function textResponse(body: string, status: number): Response {
   return new Response(body, {
@@ -23,7 +22,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   const { id } = await params;
-  if (!ID_PATTERN.test(id)) return textResponse('Ukendt fil.', 404);
+  if (!isArchiveId(id)) return textResponse('Ukendt fil.', 404);
 
   const user = await requireUser();
   const entry = await repository.getArchiveEntry(id, { org: user.org, rolle: user.rolle });
