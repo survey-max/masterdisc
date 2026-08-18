@@ -13,4 +13,14 @@ CNAME
 # /app-rewrite/app/page.tsx og /app-rewrite/data/example/*.json kan hentes
 # offentligt. App'en skal deployes som sit eget Vercel-projekt med
 # Root Directory = app-rewrite.
-app-rewrite
+app-rewrite/*
+!app-rewrite/package.json
+!app-rewrite/pnpm-lock.yaml
+!app-rewrite/next.config.ts
+!app-rewrite/tsconfig.json
+!app-rewrite/app
+!app-rewrite/lib
+!app-rewrite/public
+!app-rewrite/scripts
+!app-rewrite/docs
+!app-rewrite/supabase-migrations-til-hovedrepo
