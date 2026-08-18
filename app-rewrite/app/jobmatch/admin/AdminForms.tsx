@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 import type { ActionResult } from '@/lib/action-result';
@@ -86,8 +87,8 @@ export function AdminForms({
               <span>
                 {mig.navn} · {mig.orgNavn}
               </span>
-              <a href="/jobmatch/">JobMatch</a>
-              <a href="/jobmatch/login/">Log ud</a>
+              <Link href="/jobmatch/">JobMatch</Link>
+              <Link href="/jobmatch/login/">Log ud</Link>
             </div>
           </div>
         </div>

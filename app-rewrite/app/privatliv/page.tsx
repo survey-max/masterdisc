@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import './privatliv.css';
@@ -17,7 +18,7 @@ export default function Privatliv() {
       <header className="top">
         <div className="shell">
           <div className="toprow">
-            <a className="logo" href="/">
+            <Link className="logo" href="/">
               <span className="dots">
                 <i />
                 <i />
@@ -25,10 +26,10 @@ export default function Privatliv() {
                 <i />
               </span>
               <span className="wordmark">Master DISC</span>
-            </a>
-            <a className="back" href="/">
+            </Link>
+            <Link className="back" href="/">
               ← Til forsiden
-            </a>
+            </Link>
           </div>
         </div>
         <div className="grad" />

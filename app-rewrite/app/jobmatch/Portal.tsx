@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ArchiveEntryWithOrg } from '@/lib/data';
@@ -214,7 +215,7 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
       <header className="top">
         <div className="shell">
           <div className="toprow">
-            <a className="logo" href="/">
+            <Link className="logo" href="/">
               <span className="dots">
                 <i />
                 <i />
@@ -223,14 +224,14 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
               </span>
               <span className="wordmark">Master DISC</span>
               <span className="prod">JobMatch</span>
-            </a>
+            </Link>
             <div className="who">
               <span>
                 {bruger.navn} · {bruger.orgNavn}
               </span>
-              {bruger.admin ? <a href="/jobmatch/admin/">Administration</a> : null}
-              <a href="/">Forsiden</a>
-              <a href="/jobmatch/login/">Log ud</a>
+              {bruger.admin ? <Link href="/jobmatch/admin/">Administration</Link> : null}
+              <Link href="/">Forsiden</Link>
+              <Link href="/jobmatch/login/">Log ud</Link>
             </div>
           </div>
         </div>
@@ -277,9 +278,9 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
                   Åbn værktøjet, indlæs kandidatens MasterDISC-profil, fastlæg kravprofilen og giv
                   din vurdering. Du ender med en færdig rapport, du kan printe til PDF.
                 </p>
-                <a className="btn gold" href="/jobmatch/vaerktoej/">
+                <Link className="btn gold" href="/jobmatch/vaerktoej/">
                   Start et jobmatch
-                </a>
+                </Link>
               </div>
               <div className="act">
                 <div className="meta">

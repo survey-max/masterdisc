@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
 
 import './opret.css';
@@ -26,7 +27,7 @@ export default async function Opret({
       <header className="top">
         <div className="shell">
           <div className="toprow">
-            <a className="logo" href="/">
+            <Link className="logo" href="/">
               <span className="dots">
                 <i />
                 <i />
@@ -34,10 +35,10 @@ export default async function Opret({
                 <i />
               </span>
               <span className="wordmark">Master DISC</span>
-            </a>
-            <a className="back" href="/">
+            </Link>
+            <Link className="back" href="/">
               ← Til forsiden
-            </a>
+            </Link>
           </div>
         </div>
         <div className="grad" />

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import './forside.css';
 
 import { BuyButton } from './_components/BuyButton';
@@ -304,9 +306,9 @@ export default function Forside() {
                 <li>Eget arkiv over gennemførte jobmatch</li>
               </ul>
               <div className="cardfoot solo">
-                <a className="btn" href="/jobmatch/">
+                <Link className="btn" href="/jobmatch/">
                   Log ind på JobMatch
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -404,9 +406,9 @@ export default function Forside() {
                 Du har fået en adgangskode af din leder, konsulent eller underviser. Den bruges én
                 gang og giver dig din egen rapport.
               </p>
-              <a className="btn gold" href="/opret/">
+              <Link className="btn gold" href="/opret/">
                 Opret profil med kode
-              </a>
+              </Link>
             </div>
             <div className="door">
               <h3>Jeg har købt adgang til JobMatch</h3>
@@ -414,9 +416,9 @@ export default function Forside() {
                 Log ind og se jeres egne jobmatch. Kun din virksomhed har adgang til jeres
                 rapporter. Du kan opsætte opgaver selv og gemme dem.
               </p>
-              <a className="btn ghost goldborder" href="/jobmatch/">
+              <Link className="btn ghost goldborder" href="/jobmatch/">
                 Log ind på JobMatch
-              </a>
+              </Link>
             </div>
           </div>
           <p style={{ margin: '28px 0 0', fontSize: 14.5, color: '#B9C2D4' }}>
@@ -484,7 +486,7 @@ export default function Forside() {
                   <a href="#adgang">Log ind</a>
                 </li>
                 <li>
-                  <a href="/privatliv/">Privatlivspolitik</a>
+                  <Link href="/privatliv/">Privatlivspolitik</Link>
                 </li>
               </ul>
             </div>

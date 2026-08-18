@@ -1,5 +1,13 @@
 {
   "rewrites": [
-    { "source": "/survey/:companySlug", "destination": "/survey/index.html" }
+    { "source": "/survey/:companySlug", "destination": "/survey/index.html" },
+    {
+      "source": "/app-rewrite",
+      "destination": "https://SKIFT-MIG-app-rewrite.vercel.app/app-rewrite"
+    },
+    {
+      "source": "/app-rewrite/:path*",
+      "destination": "https://SKIFT-MIG-app-rewrite.vercel.app/app-rewrite/:path*"
+    }
   ]
 }

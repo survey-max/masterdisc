@@ -7,3 +7,10 @@ test.txt
 # GitHub Pages-specifik custom-domain-fil. Bliver i git, så GitHub Pages
 # fortsat virker indtil DNS er flyttet, men skal ikke serveres fra Vercel.
 CNAME
+
+# Selvstændig Next.js-app med eget build. Det statiske rod-deploy bygger den
+# ikke — uden denne linje uploades dens kildekode blot som filer, så fx
+# /app-rewrite/app/page.tsx og /app-rewrite/data/example/*.json kan hentes
+# offentligt. App'en skal deployes som sit eget Vercel-projekt med
+# Root Directory = app-rewrite.
+app-rewrite
