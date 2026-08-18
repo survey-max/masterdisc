@@ -1,0 +1,28 @@
+[
+    {
+        "id": "bbbb000000000001",
+        "org": "1111111111111111",
+        "bruger": "Anna Eksempel",
+        "art": "sag",
+        "navn": "Ida Fiktiv",
+        "stilling": "Client Manager",
+        "dato": "2026-08-10",
+        "note": "1. samtale · matchscore 76",
+        "filnavn": "sag.json",
+        "storrelse": 1024,
+        "tilfojet": 1780300000
+    },
+    {
+        "id": "bbbb000000000002",
+        "org": "2222222222222222",
+        "bruger": "Carla Prøve",
+        "art": "rapport",
+        "navn": "Jens Opdigtet",
+        "stilling": "Projektleder",
+        "dato": "2026-08-12",
+        "note": "2. samtale · afventer referencer",
+        "filnavn": "jobmatch-jens-opdigtet.pdf",
+        "storrelse": 204800,
+        "tilfojet": 1780400000
+    }
+]

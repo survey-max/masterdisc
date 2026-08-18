@@ -1,0 +1,53 @@
+/* Udtrukket 1:1 fra POC-filen public_html/opret/index.html (linje 11-59).
+   Ingen redesign: reglerne er uændrede. Next.js koder CSS pr. rute, saa de
+   ens klassenavne paa tvaers af siderne ikke kolliderer. */
+
+:root{
+  --ink:#0F1E35; --ink-70:#3D5270; --ink-45:#6E7C93; --ink-20:#E3DFDA;
+  --dim:#8B8FB5; --rule:#EAE6DF; --field:#F5F0E8; --paper:#F0EBE4;
+  --card-alt:#EBE7E0; --white:#FFFFFF;
+  --gold:#C9A84C; --gold-light:#E8C96A; --gold-tint:#FDF6D9; --gold-ink:#8A6E15;
+  --D:#E05C3A; --I:#F5A623; --S:#4CAF7D; --C:#4A7FCB; --stop:#C62828;
+  --disp:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--card-alt);color:var(--ink-70);font-family:var(--disp);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:-.015em;margin:0;color:var(--ink);line-height:1.14}
+p{margin:0 0 16px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.shell{max-width:1140px;margin:0 auto;padding:0 24px;width:100%}
+.grad{height:5px;background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%)}
+.top{background:var(--ink)}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
+.logo{display:inline-block;text-decoration:none}
+.logo .dots{display:flex;gap:4px;justify-content:flex-end;margin:0 3px 4px 0}
+.logo .dots i{width:7px;height:7px;border-radius:50%}
+.logo .dots i:nth-child(1){background:var(--D)} .logo .dots i:nth-child(2){background:var(--I)}
+.logo .dots i:nth-child(3){background:var(--S)} .logo .dots i:nth-child(4){background:var(--C)}
+.logo .wordmark{display:block;font-weight:800;font-size:24px;line-height:1;letter-spacing:-.02em;color:#fff}
+.top a.back{font-size:13.5px;color:var(--dim);text-decoration:none}
+.top a.back:hover{color:#fff}
+main{flex:1;padding:56px 0 72px}
+.wrap{max-width:560px;margin:0 auto}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:36px;box-shadow:0 1px 2px rgba(15,30,53,.05)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 10px}
+.card h1{font-size:29px;margin-bottom:0}
+.card h1::after{content:"";display:block;width:56px;height:3px;background:var(--gold);margin:15px 0 18px}
+.lede{font-size:15.5px;margin:0 0 26px}
+label span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-45);margin-bottom:6px}
+input[type=text]{width:100%;background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:14px 15px;color:var(--ink);font-size:19px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-align:center}
+input[type=text]::placeholder{letter-spacing:.06em;font-weight:400;font-size:15px;text-transform:none;color:#B4B0A6}
+.err{display:none;margin:12px 0 0;font-size:13.5px;font-weight:600;color:var(--stop)}
+.err.on{display:block}
+.btn{display:block;width:100%;margin-top:18px;border:1px solid var(--gold);background:var(--gold);color:#2A2005;border-radius:6px;padding:14px 24px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--gold-light);border-color:var(--gold-light)}
+.help{margin-top:26px;padding-top:22px;border-top:1px solid var(--rule);font-size:14px;color:var(--ink-45)}
+.help b{display:block;color:var(--ink);font-size:13px;margin-bottom:6px}
+.info{background:var(--gold-tint);border:1px solid #EBDBA0;border-radius:9px;padding:18px 22px;margin-top:22px}
+.info b{display:block;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-ink);margin-bottom:7px}
+.info p{margin:0;font-size:13.5px;color:#5F4E1C}
+.foot{background:var(--ink);color:var(--dim)}
+.footrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 0;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.footrow a{text-decoration:none}.footrow a:hover{color:#fff}

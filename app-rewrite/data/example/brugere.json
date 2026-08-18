@@ -1,0 +1,32 @@
+[
+    {
+        "id": "aaaa000000000001",
+        "navn": "Anna Eksempel",
+        "email": "anna@eksempel.dk",
+        "org": "1111111111111111",
+        "rolle": "admin",
+        "oprettet": 1780000000,
+        "sidstSet": 1780500000,
+        "spaerret": false
+    },
+    {
+        "id": "aaaa000000000002",
+        "navn": "Bo Testesen",
+        "email": "bo@eksempel.dk",
+        "org": "1111111111111111",
+        "rolle": "bruger",
+        "oprettet": 1780010000,
+        "sidstSet": 0,
+        "spaerret": false
+    },
+    {
+        "id": "aaaa000000000003",
+        "navn": "Carla Prøve",
+        "email": "carla@nordisk-industri.example",
+        "org": "2222222222222222",
+        "rolle": "bruger",
+        "oprettet": 1780100000,
+        "sidstSet": 1780400000,
+        "spaerret": true
+    }
+]

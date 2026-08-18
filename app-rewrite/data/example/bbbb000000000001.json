@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "cand": "Ida Fiktiv",
+    "role": "Client Manager",
+    "comp": "Eksempel Rådgivning ApS",
+    "lead": "Anna Eksempel",
+    "round": "1. samtale",
+    "date": "10. august 2026",
+    "case": "01-ClientManager"
+  },
+  "work": { "D": 72, "I": 68, "S": 41, "C": 52 },
+  "req": { "D": 76, "I": 78, "S": 35, "C": 48 },
+  "fw": { "D": 2, "I": 1, "S": 1, "C": 1 },
+  "preset": "opsog",
+  "tol": 12,
+  "answers": {
+    "kemi": { "score": 8, "na": false, "weight": 1, "note": "God kontakt fra start." },
+    "teori": { "score": 6, "na": false, "weight": 1, "note": "" },
+    "erf": { "score": 7, "na": false, "weight": 1.6, "note": "Erfaring fra beslægtet branche." },
+    "ref": { "score": null, "na": true, "weight": 1, "note": "" },
+    "flex": { "score": 7, "na": false, "weight": 1, "note": "" },
+    "mot": { "score": 9, "na": false, "weight": 1, "note": "Har gjort sit hjemmearbejde." }
+  },
+  "jobText": "",
+  "jobExtra": "",
+  "discFile": "",
+  "jobFile": "",
+  "discRejected": false,
+  "customQ": [],
+  "mix": 60,
+  "terms": { "accepted": true, "when": "10.8.2026" }
+}
