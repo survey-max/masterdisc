@@ -5,83 +5,135 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DISC Analyse V2.2</title>
   <style>
-    :root { --bg:#ececec; --card:#fff; --line:#d7dce5; --text:#1f2937; --muted:#64748b; --primary:#0f172a; --ok:#15803d; --warn:#b45309; --brand:#1475f5; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; background:#101f36; color:var(--text); }
-    .wrap { max-width:1170px; margin:0 auto; padding:24px 16px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
-    h1,h2,h3,p { margin:0 0 8px; }
-    h1 { font-size:42px; line-height:1.1; }
-    h2 { font-size:42px; line-height:1.1; }
-    .muted { color:var(--muted); }
-    .row { display:grid; grid-template-columns:110px 1fr; gap:12px; align-items:center; margin-bottom:10px; }
-    .row label { font-weight:600; }
-    input,select,button { font:inherit; }
-    input[type="text"],input[type="email"],input[type="date"],select {
-      width:100%; height:42px; border:1px solid #c6ccd7; border-radius:4px; padding:0 10px; color:#111827; background:#fff;
+    /* Samme designsystem som resten af appen — tokens er 1:1 fra /opret. */
+    :root{
+      --ink:#0F1E35; --ink-70:#3D5270; --ink-45:#6E7C93; --ink-20:#E3DFDA;
+      --dim:#8B8FB5; --rule:#EAE6DF; --field:#F5F0E8; --paper:#F0EBE4;
+      --card-alt:#EBE7E0; --white:#FFFFFF;
+      --gold:#C9A84C; --gold-light:#E8C96A; --gold-tint:#FDF6D9; --gold-ink:#8A6E15;
+      --D:#E05C3A; --I:#F5A623; --S:#4CAF7D; --C:#4A7FCB; --stop:#C62828;
+      --disp:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
     }
-    .checkbox { display:flex; gap:10px; align-items:flex-start; margin:8px 0; }
-    .btn { border:0; border-radius:10px; padding:10px 16px; cursor:pointer; }
-    .btn-primary { background:var(--brand); color:#fff; }
-    .btn-dark { background:#0f172a; color:#fff; }
-    .btn-line { border:1px solid #bcc5d6; background:#fff; color:#334155; }
-    .btn:disabled { opacity:.5; cursor:not-allowed; }
-    .between { display:flex; justify-content:space-between; align-items:center; gap:10px; }
-    .hidden { display:none; }
-    .error { color:#b91c1c; margin-top:8px; }
-    .ok { color:var(--ok); }
-    .progress { height:8px; background:#e6ebf2; border-radius:999px; overflow:hidden; }
-    .progress > div { height:100%; background:var(--brand); width:0%; transition:width .2s; }
-    .option { border:1px solid #d8deea; background:#f8fafc; border-radius:12px; padding:12px; margin-top:10px; }
-    .option .between { align-items:flex-start; }
-    .actions { display:flex; gap:8px; }
-    .choice { border:1px solid #b9c4d6; border-radius:10px; background:#fff; padding:7px 10px; font-size:13px; font-weight:600; color:#334155; }
-    .choice.most.active { background:#15803d; border-color:#15803d; color:#fff; }
-    .choice.least.active { background:#b45309; border-color:#b45309; color:#fff; }
-    .tiny { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
-    .required { color:#ef4444; }
-    .intro-shell { padding:8px 2px; }
-    .intro-field { margin-bottom:12px; }
-    .intro-field label { display:flex; align-items:center; gap:4px; font-weight:700; margin-bottom:6px; color:#2f2f2f; }
-    .intro-field p { margin:0; }
-    .inline-checks { display:flex; align-items:center; gap:14px; margin-top:6px; }
-    .inline-checks label { font-weight:500; display:flex; align-items:center; gap:6px; margin:0; }
-    .consent-section { margin-top:16px; background:#f6f8fb; border:1px solid #d7deea; border-radius:8px; padding:14px; }
-    .consent-section h4 { margin:0 0 12px; color:#1f3b67; border-bottom:2px solid var(--brand); padding-bottom:6px; }
-    .consent-checkbox-wrapper { margin:10px 0; }
-    .consent-label { display:flex; align-items:flex-start; gap:10px; font-weight:400; line-height:1.45; }
-    .consent-label input { margin-top:3px; }
-    .consent-details { background:#fff; border-left:3px solid var(--brand); padding:12px; margin:10px 0 14px 27px; border-radius:4px; }
-    .consent-details p { margin:0 0 8px; font-size:13px; }
-    .consent-details ul { margin:4px 0 8px 18px; padding:0; font-size:13px; }
-    .consent-details li { margin:2px 0; }
-    .consent-link a { color:var(--brand); text-decoration:none; font-weight:700; }
-    .consent-link a:hover { text-decoration:underline; }
-    .consent-withdrawal { border-top:1px dashed #cbd5e1; margin-top:10px; padding-top:10px; }
-    .consent-withdrawal-title { font-weight:700; margin-bottom:4px; font-size:13px; }
-    .consent-withdrawal p { margin:0; font-size:12px; color:#475569; line-height:1.5; }
-    .step-intro-card { margin-bottom:16px; }
-    .done-check { width:64px; height:64px; margin:4px auto 14px; border-radius:999px; background:#dcfce7; color:var(--ok); display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:700; }
-    @media (max-width:720px){ .row{grid-template-columns:1fr;} h1{font-size:34px;} h2{font-size:34px;} .intro-shell{max-width:100%;} .consent-details{margin-left:0;} }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{background:var(--card-alt);color:var(--ink-70);font-family:var(--disp);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+    h1,h2,h3,h4{font-family:var(--disp);font-weight:800;letter-spacing:-.015em;margin:0 0 8px;color:var(--ink);line-height:1.14}
+    p{margin:0 0 8px}
+    a{color:inherit}
+    :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+    .shell{max-width:1140px;margin:0 auto;padding:0 24px;width:100%}
+    .grad{height:5px;background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%)}
+
+    /* header */
+    .top{background:var(--ink)}
+    .toprow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
+    .logo{display:inline-block;text-decoration:none}
+    .logo .dots{display:flex;gap:4px;justify-content:flex-end;margin:0 3px 4px 0}
+    .logo .dots i{width:7px;height:7px;border-radius:50%}
+    .logo .dots i:nth-child(1){background:var(--D)} .logo .dots i:nth-child(2){background:var(--I)}
+    .logo .dots i:nth-child(3){background:var(--S)} .logo .dots i:nth-child(4){background:var(--C)}
+    .logo .wordmark{display:block;font-weight:800;font-size:24px;line-height:1;letter-spacing:-.02em;color:#fff}
+    .lang{align-items:center;gap:8px}
+    .lang label{font-size:13px;font-weight:700;color:var(--dim);white-space:nowrap}
+
+    main{flex:1;padding:44px 0 64px}
+    .wrap{max-width:680px;margin:0 auto}
+    .card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:32px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,30,53,.05)}
+    .card h3{font-size:24px}
+    .card-title{font-size:29px;text-align:center;margin-bottom:0}
+    .card-title::after{content:"";display:block;width:56px;height:3px;background:var(--gold);margin:15px auto 20px}
+    .muted{color:var(--ink-45)}
+    input,select,button{font:inherit}
+    input[type="text"],input[type="email"],input[type="date"],select{
+      width:100%;height:44px;border:1px solid var(--rule);border-radius:6px;padding:0 12px;color:var(--ink);background:var(--white);
+    }
+    select{cursor:pointer}
+    input[type="checkbox"]{accent-color:var(--gold-ink)}
+    .lang select{width:auto;height:36px;padding:0 10px;font-size:13px;font-weight:600;color:var(--ink-70)}
+    .btn{border:1px solid transparent;border-radius:6px;padding:11px 22px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-primary{background:var(--gold);border-color:var(--gold);color:#2A2005}
+    .btn-primary:hover{background:var(--gold-light);border-color:var(--gold-light)}
+    .btn-line{border:1px solid #C9C3BA;background:var(--white);color:var(--ink-70)}
+    .btn-line:hover{border-color:var(--ink-45);color:var(--ink)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .between{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .hidden{display:none}
+    .error{color:var(--stop);font-size:13.5px;font-weight:600;margin-top:8px}
+    .ok{color:#2E7D52}
+    .progress{height:8px;background:var(--ink-20);border-radius:999px;overflow:hidden}
+    .progress > div{height:100%;background:var(--gold);width:0%;transition:width .2s}
+    .option{border:1px solid var(--rule);background:var(--white);border-radius:10px;padding:13px 16px;margin-top:10px}
+    .option .between{align-items:center}
+    .option p{margin:0;flex:1}
+    .actions{display:flex;gap:8px;flex-shrink:0}
+    .choice{border:1px solid #C9C3BA;border-radius:8px;background:var(--field);padding:7px 12px;font-size:13px;font-weight:700;color:var(--ink-70);cursor:pointer}
+    .choice.most.active{background:var(--S);border-color:var(--S);color:#fff}
+    .choice.least.active{background:var(--D);border-color:var(--D);color:#fff}
+    .tiny{font-size:10.5px;font-weight:700;color:var(--ink-45);text-transform:uppercase;letter-spacing:.18em}
+    .required{color:var(--stop)}
+    .intro-shell{padding:4px 2px}
+    .intro-field{margin-bottom:16px}
+    .intro-field label{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-45);margin-bottom:6px}
+    .intro-field p{margin:0}
+    .inline-checks{display:flex;align-items:center;gap:14px;margin-top:6px}
+    .inline-checks label{font-size:14.5px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--ink-70);display:flex;align-items:center;gap:6px;margin:0}
+    .consent-section{margin-top:18px;background:var(--gold-tint);border:1px solid #EBDBA0;border-radius:9px;padding:16px 18px}
+    .consent-section h4{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-ink)}
+    .consent-checkbox-wrapper{margin:10px 0}
+    .consent-label{display:flex;align-items:flex-start;gap:10px;font-weight:400;line-height:1.45;font-size:14px;color:#5F4E1C}
+    .consent-label input{margin-top:3px}
+    .consent-details{background:var(--white);border-left:3px solid var(--gold);padding:12px;margin:10px 0 14px 27px;border-radius:4px}
+    .consent-details p{margin:0 0 8px;font-size:13px;color:var(--ink-70)}
+    .consent-details ul{margin:4px 0 8px 18px;padding:0;font-size:13px;color:var(--ink-70)}
+    .consent-details li{margin:2px 0}
+    .consent-link a{color:var(--gold-ink);text-decoration:none;font-weight:700}
+    .consent-link a:hover{text-decoration:underline}
+    .consent-withdrawal{border-top:1px dashed #D9CD9F;margin-top:10px;padding-top:10px}
+    .consent-withdrawal-title{font-weight:700;margin-bottom:4px;font-size:13px;color:var(--gold-ink)}
+    .consent-withdrawal p{margin:0;font-size:12px;color:#5F4E1C;line-height:1.5}
+    .step-intro-card{margin-bottom:16px}
+    .done-check{width:64px;height:64px;margin:4px auto 14px;border-radius:999px;background:#DCEFE3;color:#2E7D52;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700}
+
+    /* footer */
+    .foot{background:var(--ink);color:var(--dim)}
+    .footrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 0;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+    .footrow a{text-decoration:none}.footrow a:hover{color:#fff}
+
+    @media (max-width:720px){
+      .card{padding:24px 18px}
+      .card-title{font-size:24px}
+      .consent-details{margin-left:0}
+      .option .between{flex-direction:column;align-items:stretch}
+      .actions .choice{flex:1}
+    }
   </style>
 </head>
 <body>
-  <div style="max-width:1170px; margin:0 auto; padding:20px 16px 8px; display:flex; align-items:center; justify-content:center; position:relative;">
-    <div id="langWrapper" style="position:absolute; left:16px; display:none; align-items:center; gap:4px;">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      <label id="langLabel" for="langSelect" style="font-weight:700; font-size:13px; white-space:nowrap; color:#ffffff;">Language</label>
-      <select id="langSelect" style="height:36px; border:1px solid #c6ccd7; border-radius:6px; padding:0 10px; font-weight:600; font-size:13px; color:#334155; background:#fff; cursor:pointer;">
-        <option value="da">DA</option>
-        <option value="en">EN</option>
-        <option value="sv">SV</option>
-        <option value="de">DE</option>
-        <option value="es">ES</option>
-        <option value="pl">PL</option>
-      </select>
+  <header class="top">
+    <div class="shell">
+      <div class="toprow">
+        <a class="logo" href="/">
+          <span class="dots"><i></i><i></i><i></i><i></i></span>
+          <span class="wordmark">Master DISC</span>
+        </a>
+        <div id="langWrapper" class="lang" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B8FB5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <label id="langLabel" for="langSelect">Language</label>
+          <select id="langSelect">
+            <option value="da">DA</option>
+            <option value="en">EN</option>
+            <option value="sv">SV</option>
+            <option value="de">DE</option>
+            <option value="es">ES</option>
+            <option value="pl">PL</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <img src="assets/masterDisc_logo.png" alt="Master DISC" style="height:60px;">
-  </div>
-  <div class="wrap">
+    <div class="grad"></div>
+  </header>
+  <main>
+  <div class="shell wrap">
     <!-- Fase 1: kodegatens felt er væk herfra. Koden indtastes og godkendes på
          /opret og kommer hertil som ?kode=. Den bliver valideret igen her — se
          verifyCode() og kodegate-scriptet nederst — men uden synligt felt:
@@ -94,7 +146,7 @@
 
     <section id="stepIntro" class="card hidden step-intro-card">
       <div class="intro-shell">
-        <h3 style="text-align:center; font-size:36px; margin-bottom:14px;">Velkommen til DISC-analysen</h3>
+        <h3 class="card-title">Velkommen til DISC-analysen</h3>
 
         <div class="intro-field">
           <label for="fFirstName">Fornavn:<span class="required">*</span></label>
@@ -165,7 +217,7 @@
         </div>
       </div>
       <p id="introError" class="error"></p>
-      <div style="text-align:center;"><button id="btnStartIntro" class="btn btn-primary" style="font-size:18px; padding:12px 26px;">Start analysen</button></div>
+      <div style="text-align:center;"><button id="btnStartIntro" class="btn btn-primary" style="font-size:16px; padding:13px 28px;">Start analysen</button></div>
     </section>
 
     <section id="stepPrep" class="card hidden">
@@ -198,6 +250,18 @@
       <p id="doneText" class="muted">Din besvarelse ville gå igennem vores system og rapporten ville blive udarbejdet. Så nu behøver du ikke at gøre mere.</p>
     </section>
   </div>
+  </main>
+
+  <footer class="foot">
+    <div class="shell">
+      <div class="footrow">
+        <span>MasterDISC · Et Finsx-koncept</span>
+        <a href="mailto:pb@coachers.dk">pb@coachers.dk</a>
+        <span>masterdisc.dk</span>
+      </div>
+    </div>
+    <div class="grad"></div>
+  </footer>
 
   <script>
     // DISC intake now runs on the Supabase-backed Next.js API (coachersuniversed),
@@ -311,7 +375,7 @@
         const o=q.options.find(x=>x.id===id);
         const mostClass = sel.most===id ? 'active' : '';
         const leastClass = sel.least===id ? 'active' : '';
-        return `<div class="option"><div class="between"><p style="margin:0;max-width:70%;">${o.label}</p><div class="actions"><button class="choice most ${mostClass}" data-kind="most" data-value="${id}">${L('survey.most')}</button><button class="choice least ${leastClass}" data-kind="least" data-value="${id}">${L('survey.least')}</button></div></div></div>`;
+        return `<div class="option"><div class="between"><p>${o.label}</p><div class="actions"><button class="choice most ${mostClass}" data-kind="most" data-value="${id}">${L('survey.most')}</button><button class="choice least ${leastClass}" data-kind="least" data-value="${id}">${L('survey.least')}</button></div></div></div>`;
       }).join('');
       $('qOptions').innerHTML = html;
       $('btnPrevQ').disabled = state.questionIndex===0;

@@ -6,52 +6,80 @@
   <title>DISC Profiltest</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
+    /* Samme designsystem som resten af appen — tokens er 1:1 fra /opret. */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary: #4f46e5;
-      --primary-dark: #4338ca;
-      --bg-light: #f8fafc;
-      --bg-card: #ffffff;
-      --text-dark: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
+      --ink:#0F1E35; --ink-70:#3D5270; --ink-45:#6E7C93; --ink-20:#E3DFDA;
+      --dim:#8B8FB5; --rule:#EAE6DF; --field:#F5F0E8; --paper:#F0EBE4;
+      --card-alt:#EBE7E0; --white:#FFFFFF;
+      --gold:#C9A84C; --gold-light:#E8C96A; --gold-tint:#FDF6D9; --gold-ink:#8A6E15;
+      --D:#E05C3A; --I:#F5A623; --S:#4CAF7D; --C:#4A7FCB; --stop:#C62828;
+      --disp:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #101f36;
+      font-family: var(--disp);
+      background: var(--card-alt);
       min-height: 100vh;
-      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      color: var(--ink-70);
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+
+    h1,h2,h3,h4 { font-weight:800; letter-spacing:-.015em; color:var(--ink); line-height:1.14; }
+    a { color: inherit; }
+    :focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+
+    .shell { max-width:1140px; margin:0 auto; padding:0 24px; width:100%; }
+    .grad { height:5px; background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%); }
+
+    /* header */
+    .top { background: var(--ink); }
+    .toprow { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 0; flex-wrap:wrap; }
+    .logo { display:inline-block; text-decoration:none; }
+    .logo .dots { display:flex; gap:4px; justify-content:flex-end; margin:0 3px 4px 0; }
+    .logo .dots i { width:7px; height:7px; border-radius:50%; }
+    .logo .dots i:nth-child(1){background:var(--D)} .logo .dots i:nth-child(2){background:var(--I)}
+    .logo .dots i:nth-child(3){background:var(--S)} .logo .dots i:nth-child(4){background:var(--C)}
+    .logo .wordmark { display:block; font-weight:800; font-size:24px; line-height:1; letter-spacing:-.02em; color:#fff; }
+    .top a.back { font-size:13.5px; color:var(--dim); text-decoration:none; }
+    .top a.back:hover { color:#fff; }
+
+    main { flex:1; padding:44px 0 64px; }
 
     .container {
       max-width: 1170px;
       margin: 0 auto;
-      padding: 2rem;
     }
+
+    .eyebrow { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--gold-ink); margin:0 0 10px; }
 
     .header {
       text-align: left;
-      color: white;
       margin-bottom: 2rem;
     }
 
     .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
+      font-size: 34px;
+      margin-bottom: 0;
     }
 
+    .header h1::after { content:""; display:block; width:56px; height:3px; background:var(--gold); margin:15px 0 18px; }
+
     .header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
+      font-size: 1.05rem;
+      color: var(--ink-45);
     }
 
     .company-badge {
       display: inline-block;
-      background: rgba(255,255,255,0.2);
+      background: var(--gold-tint);
+      border: 1px solid #EBDBA0;
+      color: var(--gold-ink);
+      font-weight: 600;
       padding: 0.5rem 1rem;
       border-radius: 20px;
       font-size: 0.9rem;
@@ -66,42 +94,44 @@
     }
 
     .profile-card {
-      background: var(--bg-card);
-      border-radius: 16px;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
       padding: 1.5rem;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
       transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
     }
 
     .profile-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 38px -20px rgba(15,30,53,.34);
     }
 
     .profile-icon {
       width: 56px;
       height: 56px;
-      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+      background: var(--ink);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.5rem;
-      color: white;
+      color: var(--gold);
       margin-bottom: 1rem;
     }
 
     .profile-name {
       font-size: 1.25rem;
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: -.015em;
       margin-bottom: 0.5rem;
-      color: var(--text-dark);
+      color: var(--ink);
     }
 
     .profile-description {
       font-size: 0.9rem;
-      color: var(--text-muted);
+      color: var(--ink-45);
       margin-bottom: 1rem;
       line-height: 1.5;
     }
@@ -111,7 +141,7 @@
       align-items: center;
       gap: 1rem;
       font-size: 0.8rem;
-      color: var(--text-muted);
+      color: var(--ink-45);
     }
 
     .profile-meta span {
@@ -124,12 +154,13 @@
       display: block;
       width: 100%;
       padding: 0.875rem;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
+      background: var(--gold);
+      border: 1px solid var(--gold);
+      color: #2A2005;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
       cursor: pointer;
       transition: background 0.2s;
       margin-top: 1rem;
@@ -138,20 +169,22 @@
     }
 
     .start-btn:hover {
-      background: var(--primary-dark);
+      background: var(--gold-light);
+      border-color: var(--gold-light);
     }
 
     .loading {
       text-align: center;
       padding: 4rem 2rem;
-      background: var(--bg-card);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
     }
 
     .loading i {
       font-size: 3rem;
-      color: var(--primary);
+      color: var(--gold);
       margin-bottom: 1rem;
       animation: pulse 1.5s infinite;
     }
@@ -164,14 +197,15 @@
     .error {
       text-align: center;
       padding: 4rem 2rem;
-      background: var(--bg-card);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
     }
 
     .error i {
       font-size: 3rem;
-      color: #ef4444;
+      color: var(--stop);
       margin-bottom: 1rem;
     }
 
@@ -180,20 +214,21 @@
     }
 
     .error p {
-      color: var(--text-muted);
+      color: var(--ink-45);
     }
 
     .empty-state {
       text-align: center;
       padding: 4rem 2rem;
-      background: var(--bg-card);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
     }
 
     .empty-state i {
       font-size: 3rem;
-      color: var(--text-muted);
+      color: var(--ink-45);
       margin-bottom: 1rem;
     }
 
@@ -215,16 +250,18 @@
     .search-box input {
       width: 100%;
       padding: 0.875rem 1rem 0.875rem 2.75rem;
-      border: none;
-      border-radius: 12px;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
       font-size: 1rem;
-      background: var(--bg-card);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      font-family: inherit;
+      color: var(--ink);
+      background: var(--white);
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
     }
 
     .search-box input:focus {
-      outline: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      outline: 2px solid var(--gold);
+      outline-offset: 0;
     }
 
     .search-box i {
@@ -232,35 +269,36 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-muted);
+      color: var(--ink-45);
     }
 
     .view-toggle {
       display: flex;
-      background: var(--bg-card);
-      border-radius: 10px;
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
       padding: 0.25rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
     }
 
     .view-btn {
       padding: 0.625rem 1rem;
       border: none;
       background: transparent;
-      color: var(--text-muted);
+      color: var(--ink-45);
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: 6px;
       transition: all 0.2s;
       font-size: 1rem;
     }
 
     .view-btn.active {
-      background: var(--primary);
-      color: white;
+      background: var(--ink);
+      color: var(--gold);
     }
 
     .view-btn:hover:not(.active) {
-      background: var(--bg-light);
+      background: var(--field);
     }
 
     /* List view styles */
@@ -275,17 +313,18 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      background: var(--bg-card);
+      background: var(--paper);
+      border: 1px solid var(--rule);
       border-radius: 12px;
       padding: 1rem 1.25rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .profile-list-item:hover {
       transform: translateX(4px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      box-shadow: 0 14px 38px -20px rgba(15,30,53,.34);
     }
 
     .profile-list-item .profile-icon {
@@ -323,31 +362,42 @@
     .no-results {
       text-align: center;
       padding: 3rem 2rem;
-      background: var(--bg-card);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      color: var(--text-muted);
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(15,30,53,.05);
+      color: var(--ink-45);
     }
 
-    .footer {
-      text-align: center;
-      margin-top: 3rem;
-      color: rgba(255,255,255,0.7);
-      font-size: 0.9rem;
-    }
+    /* footer */
+    .foot { background: var(--ink); color: var(--dim); }
+    .footrow { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:20px 0; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+    .footrow a { text-decoration:none; }
+    .footrow a:hover { color:#fff; }
 
-    .footer a {
-      color: white;
-      text-decoration: none;
+    @media (max-width:720px){
+      .header h1 { font-size:28px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div style="margin-bottom:12px;">
-        <img src="../assets/masterDisc_logo.png" alt="Master DISC" style="height:60px;">
+  <header class="top">
+    <div class="shell">
+      <div class="toprow">
+        <a class="logo" href="/">
+          <span class="dots"><i></i><i></i><i></i><i></i></span>
+          <span class="wordmark">Master DISC</span>
+        </a>
+        <a class="back" href="/">&#8592; Til forsiden</a>
       </div>
+    </div>
+    <div class="grad"></div>
+  </header>
+
+  <main>
+  <div class="shell container">
+    <div class="header">
+      <p class="eyebrow">Profiltest</p>
       <h1>DISC Profiltest</h1>
       <p>Velkommen til din personlige DISC profilanalyse</p>
       <div id="companyLogo" style="display: none; margin-top: 1.5rem;">
@@ -365,11 +415,19 @@
         <p>Indlaeser profiler...</p>
       </div>
     </div>
-
-    <div class="footer">
-      <p>Powered by <a href="https://masterdisc.dk/">Master DISC</a></p>
-    </div>
   </div>
+  </main>
+
+  <footer class="foot">
+    <div class="shell">
+      <div class="footrow">
+        <span>MasterDISC · Et Finsx-koncept</span>
+        <a href="mailto:pb@coachers.dk">pb@coachers.dk</a>
+        <span>masterdisc.dk</span>
+      </div>
+    </div>
+    <div class="grad"></div>
+  </footer>
 
   <script type="module">
     // Company profiles now come from the Supabase-backed Next.js API
