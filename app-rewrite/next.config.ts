@@ -25,6 +25,26 @@ const nextConfig: NextConfig = {
     },
   },
 
+  /**
+   * Cutover: det gamle statiske site serverede DISC-surveyen på /survey/ og
+   * /survey/<virksomhed> (rewrite i masterdisc/vercel.json). I portalen ligger
+   * den under /profil/survey/. Eksterne links og QR-koder peger stadig på de
+   * gamle stier, så de flyttes med her i stedet for at ende i 404.
+   *
+   * Permanent (308): stierne er endeligt afløst. Rod-/ er bevidst IKKE med —
+   * den tilhører nu portalens forside.
+   */
+  async redirects() {
+    return [
+      { source: '/survey', destination: '/profil/survey/', permanent: true },
+      {
+        source: '/survey/:companySlug',
+        destination: '/profil/survey/:companySlug',
+        permanent: true,
+      },
+    ];
+  },
+
   async rewrites() {
     return [
       // Next.js does not do directory-index resolution for files in public/,
