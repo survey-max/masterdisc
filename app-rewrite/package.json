@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "seed": "node --env-file=.env.local --import tsx scripts/seed-portal.ts",
     "dry-run": "node --import tsx scripts/legacy-dry-run.ts",
-    "dry-run:db": "node --env-file=.env.local --import tsx scripts/legacy-dry-run.ts --check-existing"
+    "dry-run:db": "node --env-file=.env.local --import tsx scripts/legacy-dry-run.ts --check-existing",
+    "typecheck:vercel": "tsc --noEmit -p tsconfig.vercel.json"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

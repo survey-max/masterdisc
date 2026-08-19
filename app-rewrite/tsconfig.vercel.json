@@ -1,0 +1,18 @@
+{
+  // Typecheck med Vercels modul-resolution.
+  //
+  // Vercel typechecker middlewaren uden at følge symlinks til deres realpath.
+  // Under pnpm's strikte layout ligger @supabase/*'s transitive pakker kun i
+  // node_modules/.pnpm/, og så kan supabase-js' bundlede typer ikke resolve
+  // @supabase/auth-js. Resultatet er, at SupabaseAuthClient ikke arver noget,
+  // og getUser()/signOut()/signInWithPassword() "findes ikke" — en fejl der
+  // KUN viste sig på Vercel, aldrig lokalt.
+  //
+  // .npmrc's public-hoist-pattern løser det. Denne config er vagthunden:
+  // `pnpm typecheck:vercel` fejler lokalt, hvis hoistingen forsvinder igen.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "preserveSymlinks": true,
+    "incremental": false
+  }
+}
