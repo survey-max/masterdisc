@@ -49,12 +49,9 @@ export default function Forside() {
               at udvikle performance, løfte samarbejdet og få hver enkelt til at lykkes i sin rolle.
             </p>
             <div className="cta">
-              <a className="btn gold" href="#adgang">
-                Opret en profil
-              </a>
-              <a className="btn ghost" href="#familien">
-                Se hele universet
-              </a>
+              <Link className="btn gold" href="/opret">
+                Udfyld din DISCprofil - klik her
+              </Link>
             </div>
             <p className="fine">
               Performanceudvikling · 1:1-samtaler · Teams · Rekruttering · 100&nbsp;% på dansk

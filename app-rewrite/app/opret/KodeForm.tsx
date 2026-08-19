@@ -108,7 +108,6 @@ export function KodeForm({
           type="text"
           id="kode"
           ref={inputRef}
-          placeholder="Fx MD-2026-4KTX"
           autoComplete="off"
           spellCheck={false}
           maxLength={20}
