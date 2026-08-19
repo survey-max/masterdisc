@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 
-import { guardPortalRequest } from '@/lib/supabase/auth/middleware';
+import { guardPortalRequest } from './lib/supabase/auth/middleware';
 
 /**
  * Adgangen til JobMatch-portalen afgøres HER, før noget renderes.
