@@ -31,6 +31,13 @@
 
 ## 2. Hvad kræver beslutning i fase 3
 
+> **Status efter Supabase-skive 1** (se `docs/SUPABASE.md`): punkt 3 (hvor
+> arkivfilerne bor), 4 (ejerskab som relation) og 8 (samtidighed) er besvaret.
+> Punkt 6 (sletning og opbevaring) har fået felterne
+> `archive_entries.retention_until` og `organisations.default_retention_days`,
+> men **ingen håndhævelse**. Punkt 1, 2, 5 og 7 er uændret åbne — auth er
+> skive 2.
+
 1. **Auth-modellen.** Den store. Skal portalen bruge Supabase Auth, SSO/Microsoft,
    magic links eller noget helt andet? Hvem opretter brugere, og hvordan
    udleveres adgang første gang? Indtil det er afklaret, findes der ingen login i

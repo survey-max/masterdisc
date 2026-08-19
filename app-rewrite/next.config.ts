@@ -1,7 +1,5 @@
 import type { NextConfig } from 'next';
 
-import { BASE_PATH } from './lib/base-path';
-
 /**
  * The POC served directory URLs (/opret/, /privatliv/, /jobmatch/) through
  * Apache's DirectoryIndex, and the embedded MasterDISC copy under
@@ -13,22 +11,14 @@ import { BASE_PATH } from './lib/base-path';
 const nextConfig: NextConfig = {
   trailingSlash: true,
 
-  /**
-   * The app is deployed as its own Vercel project but reached through
-   * masterdisc.dk/app-rewrite, which proxies to it (see masterdisc/vercel.json).
-   * basePath makes the app emit every route, every _next/ asset and every
-   * public/ file under that same prefix, so the single proxy rule covers all of
-   * it and nothing escapes to the static site's root.
-   */
-  basePath: BASE_PATH,
-
   experimental: {
     /**
-     * Server Actions reject a POST whose Origin does not match the host they
-     * think they are running on. Behind the proxy the browser sends
-     * Origin: https://masterdisc.dk while the app sees its own *.vercel.app
-     * host, so without this every form submit fails with "Invalid Server
-     * Actions request".
+     * Next.js only compares Origin against the host for requests that look
+     * forwarded (an x-forwarded-host that differs from Origin). Served from
+     * its own root — the *.vercel.app preview, or masterdisc.dk after the
+     * cutover — Origin and host are the same and nothing is rejected. The
+     * list stays as the safety net for the day a proxy or an extra domain is
+     * put in front again; a new domain there must be added here too.
      */
     serverActions: {
       allowedOrigins: ['masterdisc.dk', 'www.masterdisc.dk'],
@@ -39,7 +29,6 @@ const nextConfig: NextConfig = {
     return [
       // Next.js does not do directory-index resolution for files in public/,
       // so the static MasterDISC entry points are mapped explicitly.
-      // Sources and destinations are automatically prefixed with basePath.
       { source: '/profil', destination: '/profil/index.html' },
       { source: '/profil/survey', destination: '/profil/survey/index.html' },
 

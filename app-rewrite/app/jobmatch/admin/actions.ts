@@ -6,6 +6,7 @@ import { actionErrorText, actionFailed, type ActionResult } from '@/lib/action-r
 import { requireUser } from '@/lib/auth';
 import { repository } from '@/lib/data';
 import type { UserRole } from '@/lib/data';
+import { requirePortalSession } from '@/lib/supabase/auth/session';
 
 /**
  * Replaces admin.php's POST handlers (nyorg, nybruger, spaer).
@@ -18,6 +19,9 @@ import type { UserRole } from '@/lib/data';
  */
 
 async function requireAdmin(): Promise<{ id: string }> {
+  // Samme grund som i app/jobmatch/actions.ts: en server action er et
+  // POST-endpoint, og adgangen skal derfor tjekkes her ogsaa.
+  await requirePortalSession();
   const user = await requireUser();
   if (user.rolle !== 'admin') {
     throw new Error('Du har ikke adgang til denne side.');

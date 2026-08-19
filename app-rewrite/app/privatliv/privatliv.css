@@ -1,47 +1,43 @@
 /* Udtrukket 1:1 fra POC-filen public_html/privatliv/index.html (linje 11-53).
-   Ingen redesign: reglerne er uændrede. Next.js koder CSS pr. rute, saa de
-   ens klassenavne paa tvaers af siderne ikke kolliderer. */
+   Reglerne er uaendrede — kun selektorerne er praefikset med .p-privatliv,
+   rodklassen paa wrapperen i app/privatliv/page.tsx.
 
-:root{
-  --ink:#0F1E35; --ink-70:#3D5270; --ink-45:#6E7C93; --rule:#EAE6DF;
-  --paper:#F0EBE4; --card-alt:#EBE7E0; --dim:#8B8FB5;
-  --gold:#C9A84C; --gold-tint:#FDF6D9; --gold-ink:#8A6E15;
-  --D:#E05C3A; --I:#F5A623; --S:#4CAF7D; --C:#4A7FCB;
-  --disp:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{background:var(--card-alt);color:var(--ink-70);font-family:var(--disp);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
-h1,h2{font-family:var(--disp);font-weight:800;letter-spacing:-.015em;margin:0;color:var(--ink);line-height:1.15}
-p{margin:0 0 15px}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.shell{max-width:1140px;margin:0 auto;padding:0 24px;width:100%}
-.grad{height:5px;background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%)}
-.top{background:var(--ink)}
-.toprow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
-.logo{display:inline-block;text-decoration:none}
-.logo .dots{display:flex;gap:4px;justify-content:flex-end;margin:0 3px 4px 0}
-.logo .dots i{width:7px;height:7px;border-radius:50%}
-.logo .dots i:nth-child(1){background:var(--D)} .logo .dots i:nth-child(2){background:var(--I)}
-.logo .dots i:nth-child(3){background:var(--S)} .logo .dots i:nth-child(4){background:var(--C)}
-.logo .wordmark{display:block;font-weight:800;font-size:24px;line-height:1;letter-spacing:-.02em;color:#fff}
-.top a.back{font-size:13.5px;color:var(--dim);text-decoration:none}
-.top a.back:hover{color:#fff}
-main{flex:1;padding:52px 0 72px}
-.wrap{max-width:760px;margin:0 auto}
-.card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:40px}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 10px}
-.card h1{font-size:30px;margin-bottom:0}
-.card h1::after{content:"";display:block;width:56px;height:3px;background:var(--gold);margin:15px 0 20px}
-h2{font-size:18px;margin:32px 0 10px}
-.dato{font-size:13px;color:var(--ink-45);margin-bottom:26px}
-ul{margin:0 0 15px;padding-left:22px}
-li{margin-bottom:7px}
-mark{background:var(--gold-tint);color:#5F4E1C;padding:1px 5px;border-radius:3px;font-weight:600}
-.todo{background:var(--gold-tint);border:1px solid #EBDBA0;border-radius:9px;padding:18px 22px;margin-bottom:28px}
-.todo b{display:block;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-ink);margin-bottom:7px}
-.todo p{margin:0;font-size:13.5px;color:#5F4E1C}
-.foot{background:var(--ink);color:var(--dim)}
-.footrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 0;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
-.footrow a{text-decoration:none}.footrow a:hover{color:#fff}
+   Praefikset er ikke pynt: Next.js fjerner ikke en rutes stylesheet igen ved
+   klientside-navigation, saa uden det ville de ens klassenavne (.btn, .card,
+   .drop, .top ...) fra en besoegt side blive ved med at ramme de andre sider.
+   Det, siderne bevidst deler, staar i app/base.css. */
+
+.p-privatliv{background:var(--card-alt);color:var(--ink-70);font-family:var(--disp);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh}
+.p-privatliv h1,.p-privatliv h2{font-family:var(--disp);font-weight:800;letter-spacing:-.015em;margin:0;color:var(--ink);line-height:1.15}
+.p-privatliv p{margin:0 0 15px}
+.p-privatliv a{color:inherit}
+.p-privatliv :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.p-privatliv .shell{max-width:1140px;margin:0 auto;padding:0 24px;width:100%}
+.p-privatliv .grad{height:5px;background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%)}
+.p-privatliv .top{background:var(--ink)}
+.p-privatliv .toprow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
+.p-privatliv .logo{display:inline-block;text-decoration:none}
+.p-privatliv .logo .dots{display:flex;gap:4px;justify-content:flex-end;margin:0 3px 4px 0}
+.p-privatliv .logo .dots i{width:7px;height:7px;border-radius:50%}
+.p-privatliv .logo .dots i:nth-child(1){background:var(--D)} .p-privatliv .logo .dots i:nth-child(2){background:var(--I)}
+.p-privatliv .logo .dots i:nth-child(3){background:var(--S)} .p-privatliv .logo .dots i:nth-child(4){background:var(--C)}
+.p-privatliv .logo .wordmark{display:block;font-weight:800;font-size:24px;line-height:1;letter-spacing:-.02em;color:#fff}
+.p-privatliv .top a.back{font-size:13.5px;color:var(--dim);text-decoration:none}
+.p-privatliv .top a.back:hover{color:#fff}
+.p-privatliv main{flex:1;padding:52px 0 72px}
+.p-privatliv .wrap{max-width:760px;margin:0 auto}
+.p-privatliv .card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:40px}
+.p-privatliv .eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 10px}
+.p-privatliv .card h1{font-size:30px;margin-bottom:0}
+.p-privatliv .card h1::after{content:"";display:block;width:56px;height:3px;background:var(--gold);margin:15px 0 20px}
+.p-privatliv h2{font-size:18px;margin:32px 0 10px}
+.p-privatliv .dato{font-size:13px;color:var(--ink-45);margin-bottom:26px}
+.p-privatliv ul{margin:0 0 15px;padding-left:22px}
+.p-privatliv li{margin-bottom:7px}
+.p-privatliv mark{background:var(--gold-tint);color:#5F4E1C;padding:1px 5px;border-radius:3px;font-weight:600}
+.p-privatliv .todo{background:var(--gold-tint);border:1px solid #EBDBA0;border-radius:9px;padding:18px 22px;margin-bottom:28px}
+.p-privatliv .todo b{display:block;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-ink);margin-bottom:7px}
+.p-privatliv .todo p{margin:0;font-size:13.5px;color:#5F4E1C}
+.p-privatliv .foot{background:var(--ink);color:var(--dim)}
+.p-privatliv .footrow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 0;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.p-privatliv .footrow a{text-decoration:none}.p-privatliv .footrow a:hover{color:#fff}

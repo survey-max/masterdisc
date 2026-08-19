@@ -9,7 +9,7 @@ import { ProductMenu } from './_components/ProductMenu';
 /** Ported 1:1 from public_html/index.html. Same texts, same structure. */
 export default function Forside() {
   return (
-    <>
+    <div className="p-forside">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -49,12 +49,9 @@ export default function Forside() {
               at udvikle performance, løfte samarbejdet og få hver enkelt til at lykkes i sin rolle.
             </p>
             <div className="cta">
-              <a className="btn gold" href="#adgang">
-                Opret en profil
-              </a>
-              <a className="btn ghost" href="#familien">
-                Se hele universet
-              </a>
+              <Link className="btn gold cta-arrow" href="/opret">
+                Udfyld din DISCprofil - klik her
+              </Link>
             </div>
             <p className="fine">
               Performanceudvikling · 1:1-samtaler · Teams · Rekruttering · 100&nbsp;% på dansk
@@ -496,6 +493,6 @@ export default function Forside() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

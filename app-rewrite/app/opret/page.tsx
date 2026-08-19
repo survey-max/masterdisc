@@ -23,7 +23,7 @@ export default async function Opret({
 }) {
   const { fejl = '', kode = '', profile = '', company = '' } = await searchParams;
   return (
-    <>
+    <div className="p-opret">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -48,10 +48,9 @@ export default async function Opret({
         <div className="shell wrap">
           <div className="card">
             <p className="eyebrow">Adgang</p>
-            <h1>Opret din profil</h1>
+            <h1>Opret din MasterDISC profil</h1>
             <p className="lede">
-              Indtast den adgangskode, du har fået af din leder, konsulent eller underviser. Koden
-              gælder til én besvarelse.
+              Indtast herunder den adgangskode, du har modtaget af Coachers.
             </p>
 
             <KodeForm
@@ -89,6 +88,6 @@ export default async function Opret({
         </div>
         <div className="grad" />
       </footer>
-    </>
+    </div>
   );
 }

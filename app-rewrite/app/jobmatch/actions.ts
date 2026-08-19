@@ -6,6 +6,14 @@ import { actionErrorText, actionFailed, type ActionResult } from '@/lib/action-r
 import { requireUser } from '@/lib/auth';
 import { repository } from '@/lib/data';
 import type { ArchiveEntryWithOrg, UserRole } from '@/lib/data';
+import {
+  field,
+  isArchiveId,
+  isoDate,
+  looksLikePdf,
+  MAX_ARCHIVE_BYTES,
+} from '@/lib/jobmatch/archive-input';
+import { requirePortalSession } from '@/lib/supabase/auth/session';
 
 /**
  * Server actions for the JobMatch portal. They replace arkiv.php's
@@ -16,43 +24,16 @@ import type { ArchiveEntryWithOrg, UserRole } from '@/lib/data';
  * shown, never as an empty list or a zero.
  */
 
-const MAX_BYTES = 25 * 1024 * 1024; // arkiv.php: MAKS
-const ID_PATTERN = /^[a-f0-9]{16}$/;
+// POC'ens input-regler (MAKS, felt(), %PDF--tjekket, id-formen) ligger i
+// lib/jobmatch/archive-input.ts, fordi API-routes håndhæver de samme regler.
 
-/**
- * Drops the same control characters arkiv.php's felt() stripped: everything
- * below space except tab, newline and carriage return.
- */
-function stripControlChars(value: string): string {
-  let out = '';
-  for (const character of value) {
-    const code = character.codePointAt(0) ?? 0;
-    const isControl = code < 32 && code !== 9 && code !== 10 && code !== 13;
-    if (!isControl) out += character;
-  }
-  return out;
-}
-
-/** arkiv.php's felt(): trim, strip control characters, cap the length. */
-function field(value: FormDataEntryValue | string | null, max = 200): string {
-  if (typeof value !== 'string') return '';
-  return stripControlChars(value.trim()).slice(0, max);
-}
-
-function today(): string {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${now.getFullYear()}-${month}-${day}`;
-}
-
-function isoDate(value: string): string {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : today();
-}
-
-async function viewer(): Promise<{ org: string; rolle: UserRole; navn: string }> {
+async function viewer(): Promise<{ id: string; org: string; rolle: UserRole; navn: string }> {
+  // Adgangen tjekkes her og ikke kun i middlewaren: en server action er et
+  // POST-endpoint som ethvert andet, og alt, der skriver i arkivet, går
+  // igennem den her funktion.
+  await requirePortalSession();
   const user = await requireUser();
-  return { org: user.org, rolle: user.rolle, navn: user.navn };
+  return { id: user.id, org: user.org, rolle: user.rolle, navn: user.navn };
 }
 
 /** The archive as the current user may see it. Mirrors arkiv.php ?a=liste. */
@@ -75,17 +56,17 @@ export async function uploadRapportAction(formData: FormData): Promise<ActionRes
     const file = formData.get('fil');
     if (!(file instanceof File)) return actionFailed('Der blev ikke sendt nogen fil.');
     if (file.size <= 0) return actionFailed('Filen er tom.');
-    if (file.size > MAX_BYTES) return actionFailed('Filen er større end 25 MB.');
+    if (file.size > MAX_ARCHIVE_BYTES) return actionFailed('Filen er større end 25 MB.');
 
     const bytes = new Uint8Array(await file.arrayBuffer());
     // Same check as arkiv.php: the file has to actually start with %PDF-.
-    const header = new TextDecoder('latin1').decode(bytes.subarray(0, 5));
-    if (header !== '%PDF-') return actionFailed('Filen er ikke en PDF.');
+    if (!looksLikePdf(bytes)) return actionFailed('Filen er ikke en PDF.');
 
     const fallbackName = file.name.replace(/\.(pdf|json)$/i, '') || 'Uden navn';
     await repository.createArchiveEntry({
       org: me.org,
       bruger: me.navn,
+      brugerId: me.id,
       art: 'rapport',
       navn: field(formData.get('navn')) || fallbackName,
       stilling: field(formData.get('stilling')),
@@ -123,11 +104,12 @@ export async function saveCaseAction(input: {
     } catch {
       return actionFailed('Sagen kunne ikke læses som gyldig data.');
     }
-    if (input.caseJson.length > MAX_BYTES) return actionFailed('Sagen er større end 25 MB.');
+    if (input.caseJson.length > MAX_ARCHIVE_BYTES) return actionFailed('Sagen er større end 25 MB.');
 
     await repository.createArchiveEntry({
       org: me.org,
       bruger: me.navn,
+      brugerId: me.id,
       art: 'sag',
       navn,
       stilling: field(input.stilling),
@@ -146,7 +128,7 @@ export async function saveCaseAction(input: {
 /** Mirrors arkiv.php ?a=slet. */
 export async function deleteEntryAction(id: string): Promise<ActionResult> {
   try {
-    if (!ID_PATTERN.test(id)) return actionFailed('Ukendt fil.');
+    if (!isArchiveId(id)) return actionFailed('Ukendt fil.');
     const me = await viewer();
     await repository.deleteArchiveEntry(id, me);
     revalidatePath('/jobmatch');

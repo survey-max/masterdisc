@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { ActionResult } from '@/lib/action-result';
 import type { Organisation, User } from '@/lib/data';
 
+import { LogUdKnap } from '../LogUdKnap';
 import { createOrganisationAction, createUserAction, toggleUserBlockedAction } from './actions';
 
 interface Besked {
@@ -69,7 +70,7 @@ export function AdminForms({
   const antalBrugere = (orgId: string) => brugere.filter((b) => b.org === orgId).length;
 
   return (
-    <>
+    <div className="p-jm-admin">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -88,7 +89,7 @@ export function AdminForms({
                 {mig.navn} · {mig.orgNavn}
               </span>
               <Link href="/jobmatch/">JobMatch</Link>
-              <Link href="/jobmatch/login/">Log ud</Link>
+              <LogUdKnap />
             </div>
           </div>
         </div>
@@ -244,6 +245,6 @@ export function AdminForms({
           </table>
         </div>
       </main>
-    </>
+    </div>
   );
 }

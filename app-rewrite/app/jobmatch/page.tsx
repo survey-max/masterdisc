@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// The temporary JSON data layer reads from disk, so nothing here may be cached
-// at build time.
+// The page is rendered for one user and reads live data from Supabase, so
+// nothing here may be cached at build time.
 export const dynamic = 'force-dynamic';
 
 /**

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ArchiveEntryWithOrg } from '@/lib/data';
 
 import { deleteEntryAction, listEntriesAction, uploadRapportAction } from './actions';
+import { LogUdKnap } from './LogUdKnap';
 
 type SortMode = 'ny' | 'gl' | 'navn';
 
@@ -211,7 +212,7 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
         }`;
 
   return (
-    <>
+    <div className="p-jm-portal">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -231,7 +232,7 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
               </span>
               {bruger.admin ? <Link href="/jobmatch/admin/">Administration</Link> : null}
               <Link href="/">Forsiden</Link>
-              <Link href="/jobmatch/login/">Log ud</Link>
+              <LogUdKnap />
             </div>
           </div>
         </div>
@@ -561,6 +562,6 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
         </div>
         <div className="grad" />
       </footer>
-    </>
+    </div>
   );
 }

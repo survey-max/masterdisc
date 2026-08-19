@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 import './login.css';
+
+import { getPortalSessionUser } from '@/lib/supabase/auth/session';
 
 import { LoginForm } from './LoginForm';
 
@@ -9,17 +12,38 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+// Siden afhænger af sessionen på hver request og må aldrig caches.
+export const dynamic = 'force-dynamic';
+
 /**
- * public_html/jobmatch/index.php — login-formularen, kun udseendet.
+ * Udseendet er POC'ens login (public_html/jobmatch/index.php), men adgangen er
+ * rigtig nu: Supabase Auth + allowlisten i PORTAL_ALLOWED_USER_IDS.
  *
- * Der er ingen session, ingen password-verifikation, ingen cookie og ingen
- * rate limiting i fase 1: auth-modellen besluttes i fase 3 (se lib/auth). POC'en
- * viste login på samme URL som portalen; her har den sin egen rute, fordi der
- * ikke er nogen session at afgøre det ud fra.
+ * Login ligger på sin egen rute uden for /jobmatch/**, fordi middlewaren spærrer
+ * alt derinde — lå login'et under /jobmatch/, ville en udlogget bruger blive
+ * sendt i ring.
  */
-export default function Login() {
+const FEJLBESKED: Record<string, string> = {
+  // Middlewaren har allerede logget UID'et; brugeren får kun beskeden.
+  'ingen-adgang': 'Du har ikke adgang til portalen',
+  'opsaetning':
+    'Portalen er ikke sat op korrekt, og login er derfor spærret. Skriv til pb@coachers.dk.',
+};
+
+export default async function Login({
+  searchParams,
+}: {
+  searchParams: Promise<{ fejl?: string }>;
+}) {
+  // Er man allerede logget ind OG på allowlisten, er der intet at logge ind på.
+  const session = await getPortalSessionUser();
+  if (session) redirect('/jobmatch/');
+
+  const { fejl } = await searchParams;
+  const initialFejl = (fejl && FEJLBESKED[fejl]) ?? null;
+
   return (
-    <>
+    <div className="p-jm-login">
       <div className="top">
         <div className="shell">
           <div className="dots">
@@ -43,7 +67,7 @@ export default function Login() {
               Du får adgang til din virksomheds egne jobmatch. Andre virksomheder kan ikke se jeres.
             </p>
 
-            <LoginForm />
+            <LoginForm initialFejl={initialFejl} />
 
             <p className="hjaelp">
               Har du glemt din adgangskode, eller mangler du adgang? Skriv til{' '}
@@ -64,6 +88,6 @@ export default function Login() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

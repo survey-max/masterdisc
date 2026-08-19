@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { BASE_PATH } from '@/lib/base-path';
 import { verifyConsultantCode } from '@/lib/disc/verify-code';
 
 const FEJL_TEKST: Record<string, string> = {
@@ -91,7 +90,7 @@ export function KodeForm({
       // Kom brugeren fra /profil/survey/<virksomhed>, følger valget med tilbage.
       if (profile) target.set('profile', profile);
       if (company) target.set('company', company);
-      window.location.assign(`${BASE_PATH}/profil/?${target.toString()}`);
+      window.location.assign(`/profil/?${target.toString()}`);
       return;
     }
 
@@ -109,7 +108,6 @@ export function KodeForm({
           type="text"
           id="kode"
           ref={inputRef}
-          placeholder="Fx MD-2026-4KTX"
           autoComplete="off"
           spellCheck={false}
           maxLength={20}

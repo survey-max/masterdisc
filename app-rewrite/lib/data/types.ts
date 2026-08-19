@@ -84,7 +84,15 @@ export interface StoredFile {
 
 export interface NewArchiveEntry {
   org: string;
+  /** Display name of the user who added it, exactly as the POC stored it. */
   bruger: string;
+  /**
+   * Owner as a relation instead of a name in cleartext (fase 3, beslutning 4).
+   * Optional so every existing caller still satisfies the interface: records
+   * created before the Supabase migration have no user id to point at, and
+   * legacy rows keep `bruger` as the only trace of who added them.
+   */
+  brugerId?: string;
   art: ArchiveKind;
   navn: string;
   stilling: string;

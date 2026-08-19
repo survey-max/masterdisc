@@ -685,7 +685,7 @@ export function Tool() {
   );
 
   return (
-    <>
+    <div className="p-jm-vaerktoej">
       <header className="md-head">
         <div className="shell headrow">
           <div>
@@ -1685,6 +1685,6 @@ export function Tool() {
           <span className="pgnum">Coachers</span>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

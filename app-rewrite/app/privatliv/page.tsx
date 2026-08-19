@@ -14,7 +14,7 @@ export const metadata: Metadata = {
  */
 export default function Privatliv() {
   return (
-    <>
+    <div className="p-privatliv">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -137,6 +137,6 @@ export default function Privatliv() {
         </div>
         <div className="grad" />
       </footer>
-    </>
+    </div>
   );
 }

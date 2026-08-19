@@ -1,5 +1,9 @@
 # Eksempeldata (anonyme)
 
+**Disse filer er kilden til `pnpm seed`**, som lægger dem ind i Supabase
+(schemaet `portal` + bucketen `portal-arkiv`). Se `docs/SUPABASE.md`. Selve
+appen læser dem ikke længere direkte.
+
 Fiktive records i **samme struktur og med samme felttyper** som POC'ens
 `jobmatch-filer/`. De ligger i git, fordi de skal kunne bruges til udvikling
 uden at nogen kommer i nærheden af rigtige personoplysninger.
