@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { ActionResult } from '@/lib/action-result';
 import type { Organisation, User } from '@/lib/data';
 
+import { LogUdKnap } from '../LogUdKnap';
 import { createOrganisationAction, createUserAction, toggleUserBlockedAction } from './actions';
 
 interface Besked {
@@ -88,7 +89,7 @@ export function AdminForms({
                 {mig.navn} · {mig.orgNavn}
               </span>
               <Link href="/jobmatch/">JobMatch</Link>
-              <Link href="/jobmatch/login/">Log ud</Link>
+              <LogUdKnap />
             </div>
           </div>
         </div>

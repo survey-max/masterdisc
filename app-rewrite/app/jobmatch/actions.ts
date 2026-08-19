@@ -13,6 +13,7 @@ import {
   looksLikePdf,
   MAX_ARCHIVE_BYTES,
 } from '@/lib/jobmatch/archive-input';
+import { requirePortalSession } from '@/lib/supabase/auth/session';
 
 /**
  * Server actions for the JobMatch portal. They replace arkiv.php's
@@ -27,6 +28,10 @@ import {
 // lib/jobmatch/archive-input.ts, fordi API-routes håndhæver de samme regler.
 
 async function viewer(): Promise<{ id: string; org: string; rolle: UserRole; navn: string }> {
+  // Adgangen tjekkes her og ikke kun i middlewaren: en server action er et
+  // POST-endpoint som ethvert andet, og alt, der skriver i arkivet, går
+  // igennem den her funktion.
+  await requirePortalSession();
   const user = await requireUser();
   return { id: user.id, org: user.org, rolle: user.rolle, navn: user.navn };
 }

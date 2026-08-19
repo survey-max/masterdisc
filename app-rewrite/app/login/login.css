@@ -1,6 +1,6 @@
 /* Udtrukket 1:1 fra POC-filen public_html/jobmatch/index.php (login-delen) (linje 46-80).
    Reglerne er uaendrede — kun selektorerne er praefikset med .p-jm-login,
-   rodklassen paa wrapperen i app/jobmatch/login/page.tsx.
+   rodklassen paa wrapperen i app/login/page.tsx.
 
    Praefikset er ikke pynt: Next.js fjerner ikke en rutes stylesheet igen ved
    klientside-navigation, saa uden det ville de ens klassenavne (.btn, .card,

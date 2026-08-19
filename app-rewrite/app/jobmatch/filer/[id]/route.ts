@@ -1,6 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { repository } from '@/lib/data';
 import { isArchiveId } from '@/lib/jobmatch/archive-input';
+import { getPortalSessionUser } from '@/lib/supabase/auth/session';
 
 /**
  * Download of an archived file. Replaces arkiv.php ?a=hent.
@@ -21,6 +22,14 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
+  // Middlewaren spærrer allerede /jobmatch/**, men en route handler må ikke
+  // hvile på det alene: den kan kaldes direkte, og det, den svarer med, er en
+  // fil fra arkivet.
+  const session = await getPortalSessionUser();
+  if (!session) {
+    return textResponse('Du er ikke logget ind, eller du har ikke adgang til portalen.', 401);
+  }
+
   const { id } = await params;
   if (!isArchiveId(id)) return textResponse('Ukendt fil.', 404);
 
