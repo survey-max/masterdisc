@@ -1,61 +1,60 @@
 /* Udtrukket 1:1 fra POC-filen public_html/jobmatch/admin.php (linje 138-194).
-   Ingen redesign: reglerne er uændrede. Next.js koder CSS pr. rute, saa de
-   ens klassenavne paa tvaers af siderne ikke kolliderer. */
+   Reglerne er uaendrede — kun selektorerne er praefikset med .p-jm-admin,
+   rodklassen paa wrapperen i app/jobmatch/admin/AdminForms.tsx.
 
-:root{--ink:#0F1E35;--ink-70:#3D5270;--ink-45:#6E7C93;--ink-20:#E3DFDA;--dim:#8B8FB5;
---rule:#EAE6DF;--field:#F5F0E8;--paper:#F0EBE4;--card-alt:#EBE7E0;--white:#fff;
---gold:#C9A84C;--gold-light:#E8C96A;--gold-tint:#FDF6D9;--gold-ink:#8A6E15;
---ok:#2E7D32;--stop:#C62828;--D:#E05C3A;--I:#F5A623;--S:#4CAF7D;--C:#4A7FCB;}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{background:var(--card-alt);color:var(--ink-70);font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
-h1,h2,h3{margin:0;color:var(--ink);font-weight:800;letter-spacing:-.015em;line-height:1.15}
-p{margin:0 0 14px}
-a{color:inherit}
-button,input,select{font-family:inherit;font-size:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-.shell{max-width:1000px;margin:0 auto;padding:0 24px}
-.grad{height:5px;background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%)}
-.top{background:var(--ink)}
-.toprow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
-.logo .dots{display:flex;gap:4px;justify-content:flex-end;margin:0 3px 4px 0}
-.logo .dots i{width:7px;height:7px;border-radius:50%}
-.logo .dots i:nth-child(1){background:var(--D)}.logo .dots i:nth-child(2){background:var(--I)}
-.logo .dots i:nth-child(3){background:var(--S)}.logo .dots i:nth-child(4){background:var(--C)}
-.logo b{display:block;color:#fff;font-size:23px;font-weight:800;letter-spacing:-.02em}
-.logo span{display:block;margin-top:7px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
-.who{font-size:13.5px;color:var(--dim);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.who a{text-decoration:none}.who a:hover{color:#fff}
-main{padding:32px 0 70px}
-.card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:28px;margin-bottom:20px}
-.card h2{font-size:21px;margin-bottom:4px}
-.card h2::after{content:"";display:block;width:48px;height:3px;background:var(--gold);margin:12px 0 16px}
-.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 8px}
-.msg{border-radius:9px;padding:15px 20px;margin-bottom:20px;font-size:14px;font-weight:500}
-.msg.ok{background:#E8F5E9;border:1px solid #B6DFBA;color:#1B5E20}
-.msg.fejl{background:#FBECEC;border:1px solid #F0C4C4;color:#8E1F1F}
-label{display:block;margin-bottom:14px}
-label span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-45);margin-bottom:5px}
-input,select{width:100%;background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:10px 12px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
-@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
-.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:6px;padding:12px 22px;font-weight:600;cursor:pointer}
-.btn:hover{background:#1D2C41}
-.btn.gold{background:var(--gold);border-color:var(--gold);color:#2A2005}
-.btn.line{background:var(--white);border-color:var(--ink-20);color:var(--ink)}
-.btn.sm{padding:7px 13px;font-size:13px}
-.btn.danger{background:var(--white);border-color:var(--ink-20);color:var(--stop)}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-45);padding:0 10px 9px 0;border-bottom:1px solid var(--rule)}
-td{padding:13px 10px 13px 0;border-bottom:1px solid var(--rule);vertical-align:middle}
-td b{color:var(--ink)}
-.tag{display:inline-block;padding:2px 9px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-.tag.admin{background:rgba(224,92,58,.14);color:#A63F26}
-.tag.orgadmin{background:rgba(201,168,76,.22);color:var(--gold-ink)}
-.tag.bruger{background:rgba(74,127,203,.13);color:var(--C)}
-.tag.spaer{background:#EFEFEF;color:#666}
-.note{background:var(--gold-tint);border:1px solid #EBDBA0;border-radius:9px;padding:16px 20px;font-size:13.5px;color:#5F4E1C;margin-top:18px}
-.note b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-ink);margin-bottom:6px}
-.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.inline input{width:auto;min-width:150px}
+   Praefikset er ikke pynt: Next.js fjerner ikke en rutes stylesheet igen ved
+   klientside-navigation, saa uden det ville de ens klassenavne (.btn, .card,
+   .drop, .top ...) fra en besoegt side blive ved med at ramme de andre sider.
+   Det, siderne bevidst deler, staar i app/base.css. */
+
+.p-jm-admin{background:var(--card-alt);color:var(--ink-70);font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.p-jm-admin h1,.p-jm-admin h2,.p-jm-admin h3{margin:0;color:var(--ink);font-weight:800;letter-spacing:-.015em;line-height:1.15}
+.p-jm-admin p{margin:0 0 14px}
+.p-jm-admin a{color:inherit}
+.p-jm-admin button,.p-jm-admin input,.p-jm-admin select{font-family:inherit;font-size:inherit;color:inherit}
+.p-jm-admin :focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.p-jm-admin .shell{max-width:1000px;margin:0 auto;padding:0 24px}
+.p-jm-admin .grad{height:5px;background:linear-gradient(90deg,var(--D) 0%,var(--I) 34%,var(--S) 67%,var(--C) 100%)}
+.p-jm-admin .top{background:var(--ink)}
+.p-jm-admin .toprow{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
+.p-jm-admin .logo .dots{display:flex;gap:4px;justify-content:flex-end;margin:0 3px 4px 0}
+.p-jm-admin .logo .dots i{width:7px;height:7px;border-radius:50%}
+.p-jm-admin .logo .dots i:nth-child(1){background:var(--D)}.p-jm-admin .logo .dots i:nth-child(2){background:var(--I)}
+.p-jm-admin .logo .dots i:nth-child(3){background:var(--S)}.p-jm-admin .logo .dots i:nth-child(4){background:var(--C)}
+.p-jm-admin .logo b{display:block;color:#fff;font-size:23px;font-weight:800;letter-spacing:-.02em}
+.p-jm-admin .logo span{display:block;margin-top:7px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.p-jm-admin .who{font-size:13.5px;color:var(--dim);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.p-jm-admin .who a{text-decoration:none}.p-jm-admin .who a:hover{color:#fff}
+.p-jm-admin main{padding:32px 0 70px}
+.p-jm-admin .card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:28px;margin-bottom:20px}
+.p-jm-admin .card h2{font-size:21px;margin-bottom:4px}
+.p-jm-admin .card h2::after{content:"";display:block;width:48px;height:3px;background:var(--gold);margin:12px 0 16px}
+.p-jm-admin .eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 8px}
+.p-jm-admin .msg{border-radius:9px;padding:15px 20px;margin-bottom:20px;font-size:14px;font-weight:500}
+.p-jm-admin .msg.ok{background:#E8F5E9;border:1px solid #B6DFBA;color:#1B5E20}
+.p-jm-admin .msg.fejl{background:#FBECEC;border:1px solid #F0C4C4;color:#8E1F1F}
+.p-jm-admin label{display:block;margin-bottom:14px}
+.p-jm-admin label span{display:block;font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-45);margin-bottom:5px}
+.p-jm-admin input,.p-jm-admin select{width:100%;background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:10px 12px}
+.p-jm-admin .g2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.p-jm-admin .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 16px}
+@media(max-width:700px){.p-jm-admin .g2,.p-jm-admin .g3{grid-template-columns:1fr}}
+.p-jm-admin .btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:6px;padding:12px 22px;font-weight:600;cursor:pointer}
+.p-jm-admin .btn:hover{background:#1D2C41}
+.p-jm-admin .btn.gold{background:var(--gold);border-color:var(--gold);color:#2A2005}
+.p-jm-admin .btn.line{background:var(--white);border-color:var(--ink-20);color:var(--ink)}
+.p-jm-admin .btn.sm{padding:7px 13px;font-size:13px}
+.p-jm-admin .btn.danger{background:var(--white);border-color:var(--ink-20);color:var(--stop)}
+.p-jm-admin table{width:100%;border-collapse:collapse;font-size:14px}
+.p-jm-admin th{text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-45);padding:0 10px 9px 0;border-bottom:1px solid var(--rule)}
+.p-jm-admin td{padding:13px 10px 13px 0;border-bottom:1px solid var(--rule);vertical-align:middle}
+.p-jm-admin td b{color:var(--ink)}
+.p-jm-admin .tag{display:inline-block;padding:2px 9px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.p-jm-admin .tag.admin{background:rgba(224,92,58,.14);color:#A63F26}
+.p-jm-admin .tag.orgadmin{background:rgba(201,168,76,.22);color:var(--gold-ink)}
+.p-jm-admin .tag.bruger{background:rgba(74,127,203,.13);color:var(--C)}
+.p-jm-admin .tag.spaer{background:#EFEFEF;color:#666}
+.p-jm-admin .note{background:var(--gold-tint);border:1px solid #EBDBA0;border-radius:9px;padding:16px 20px;font-size:13.5px;color:#5F4E1C;margin-top:18px}
+.p-jm-admin .note b{display:block;font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-ink);margin-bottom:6px}
+.p-jm-admin .inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.p-jm-admin .inline input{width:auto;min-width:150px}

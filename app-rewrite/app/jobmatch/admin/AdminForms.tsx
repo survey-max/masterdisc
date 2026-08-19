@@ -69,7 +69,7 @@ export function AdminForms({
   const antalBrugere = (orgId: string) => brugere.filter((b) => b.org === orgId).length;
 
   return (
-    <>
+    <div className="p-jm-admin">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -244,6 +244,6 @@ export function AdminForms({
           </table>
         </div>
       </main>
-    </>
+    </div>
   );
 }

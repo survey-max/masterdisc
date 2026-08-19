@@ -19,7 +19,7 @@ export const metadata: Metadata = {
  */
 export default function Login() {
   return (
-    <>
+    <div className="p-jm-login">
       <div className="top">
         <div className="shell">
           <div className="dots">
@@ -64,6 +64,6 @@ export default function Login() {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

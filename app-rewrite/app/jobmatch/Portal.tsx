@@ -211,7 +211,7 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
         }`;
 
   return (
-    <>
+    <div className="p-jm-portal">
       <header className="top">
         <div className="shell">
           <div className="toprow">
@@ -561,6 +561,6 @@ export function Portal({ bruger, initialFiler, initialVisOrg }: PortalProps) {
         </div>
         <div className="grad" />
       </footer>
-    </>
+    </div>
   );
 }

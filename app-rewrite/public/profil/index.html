@@ -37,10 +37,13 @@
     .lang label{font-size:13px;font-weight:700;color:var(--dim);white-space:nowrap}
 
     main{flex:1;padding:44px 0 64px}
-    /* Det omkransede felt: navy kant (temaets --ink) og bredere end før, så
-       indholdet fylder mere af skærmen. Padding'en her erstatter .shell's. */
-    .wrap{max-width:980px;margin:0 auto;padding:26px 24px;border:2px solid var(--ink);border-radius:14px}
-    .card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:32px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,30,53,.05)}
+    /* Bredere felt end før, så indholdet fylder mere af skærmen. Kanten
+       sidder på selve kortet (.card) — ikke her — så rammen følger kortet i
+       stedet for hele sidebredden. Sidemargin kommer fra .shell. */
+    .wrap{max-width:980px;margin:0 auto}
+    /* Navy kant (temaets --ink) om kortet. Samme udtryk på alle trin i flowet,
+       så rammen ikke skifter fra skærm til skærm. */
+    .card{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:32px;margin-bottom:16px;box-shadow:0 1px 2px rgba(15,30,53,.05)}
     .card h3{font-size:24px}
     .card-title{font-size:29px;margin-bottom:0}
     .card-title::after{content:"";display:block;width:56px;height:3px;background:var(--gold);margin:15px 0 20px}
@@ -110,10 +113,8 @@
     .footrow a{text-decoration:none}.footrow a:hover{color:#fff}
 
     @media (max-width:720px){
-      /* Mindre sidemargin på mobil. .shell.wrap er mere specifik end .shell,
-         så det omkransede felt beholder sin lodrette padding. */
+      /* Mindre sidemargin på mobil. */
       .shell{padding:0 14px}
-      .shell.wrap{padding:18px 12px;border-radius:10px}
       .card{padding:24px 18px}
       .card-title{font-size:24px}
       .consent-details{margin-left:0}

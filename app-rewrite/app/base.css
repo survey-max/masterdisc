@@ -1,0 +1,48 @@
+/* Det eneste globale stylesheet.
+ *
+ * Her staar praecis det, alle rute-stylesheets i forvejen satte ens, og som
+ * sidder over sidernes wrapper i traeet: designtokens paa :root, box-sizing,
+ * nulstillingen af <html>/<body> og sidebaggrunden. Alt andet er scopet til
+ * den enkelte rute (.p-forside, .p-opret, .p-jm-portal, ...), saa en sides
+ * regler ikke kan ramme en anden side, naar begge stylesheets er indlaest
+ * efter klientside-navigation.
+ */
+:root{
+  --ink:#0F1E35;
+  --ink-2:#1A2B4A;
+  --ink-70:#3D5270;
+  --ink-45:#6E7C93;
+  --ink-20:#E3DFDA;
+  --dim:#8B8FB5;
+  --rule:#EAE6DF;
+  --field:#F5F0E8;
+  --paper:#F0EBE4;
+  --card-alt:#EBE7E0;
+  --white:#FFFFFF;
+  --gold:#C9A84C;
+  --gold-light:#E8C96A;
+  --gold-tint:#FDF6D9;
+  --gold-ink:#8A6E15;
+  --D:#E05C3A;
+  --I:#F5A623;
+  --S:#4CAF7D;
+  --C:#4A7FCB;
+  --shadow:0 1px 2px rgba(15,30,53,.05);
+  --lift:0 14px 38px -20px rgba(15,30,53,.34);
+  --disp:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --stop:#C62828;
+  --ok:#2E7D32;
+  --warn:#E6A000;
+  --lg:#A5D6A7;
+  --sc1:#EF9A9A;
+  --sc2:#FFCC80;
+  --sc5:#A5D6A7;
+  --sc6:#81C784;
+  --mono:'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --body:'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+/* Sidebaggrunden skal ligge paa <body>, saa den ogsaa daekker omraadet under
+   indholdet og bag overscroll. Alle syv sider satte samme farve. */
+body{background:var(--card-alt)}
