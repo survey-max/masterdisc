@@ -23,6 +23,9 @@ export default function Forside() {
               <span className="wordmark">Master DISC</span>
             </a>
             <nav className="menu">
+	      <a href="#vaerktoejet" className="hide-sm">
+                DEVELOPMENT
+              </a>
               <ProductMenu />
               <a href="#vaerktoejet" className="hide-sm">
                 Sådan virker det
