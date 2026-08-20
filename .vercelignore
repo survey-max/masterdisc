@@ -1,9 +1,0 @@
-# Ikke en del af det udgivne site.
-# GitHub Pages (Jekyll) sprang automatisk dot-mapper over; Vercel gør ikke,
-# så .claude/ ville ellers blive serveret offentligt.
-.claude
-test.txt
-
-# GitHub Pages-specifik custom-domain-fil. Bliver i git, så GitHub Pages
-# fortsat virker indtil DNS er flyttet, men skal ikke serveres fra Vercel.
-CNAME

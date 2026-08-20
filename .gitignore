@@ -1,7 +1,30 @@
-.idea/DISC.iml
-.idea/inspectionProfiles/profiles_settings.xml
-.idea/inspectionProfiles/Project_Default.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/vcs.xml
-/app-rewrite/legacy-php
+# --- Persondata må ALDRIG i version control ---
+# Den rigtige JSON-fil-database fra POC'en (brugere, virksomheder, arkivposter,
+# gemte sager, uploadede PDF-rapporter). Kun anonyme eksempler i data/example/
+# er checket ind.
+jobmatch-filer/
+data/local/
+data/**/*.pdf
+brugere.json
+organisationer.json
+loginforsog.json
+data.json
+opsat.flag
+# Gemte sager og arkivposter hedder <16 hex tegn>.json i POC'ens datamappe.
+[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*.json
+# ... men eksempeldataene skal med:
+!data/example/**
+
+# Miljøvariabler
+.env
+.env.*
+!.env.example
+
+# Build og værktøj
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+.DS_Store
