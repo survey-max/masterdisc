@@ -1,9 +1,14 @@
 /**
  * PDF reading for the JobMatch tool — ported from vaerktoej.php.
  *
- * pdf.js is still loaded from cdnjs (see the <Script> tag on the page), exactly
- * as the POC did it, so the parsing behaves identically. Bundling pdfjs-dist
- * locally is a fase 2 question, not a fase 1 change.
+ * pdf.js 3.11.174 — SAMME version som POC'en brugte fra cdnjs, så parsingen
+ * er uændret — men serveret fra egen origin (public/vendor/pdfjs/, kopieret
+ * fra pdfjs-dist i devDependencies). CDN-udgaven fejlede i produktion:
+ * next/script med beforeInteractive understøttes ikke på sideniveau, så
+ * window.pdfjsLib fandtes aldrig, og hver PDF endte i "kunne ikke læses".
+ * Nu hentes scriptet lazy, første gang en PDF skal læses — og fra samme
+ * origin, så worker'en kører som rigtig worker i stedet for cross-origin-
+ * fallback på main thread.
  */
 
 import { FACTORS, type FactorValues } from './model';
@@ -26,16 +31,37 @@ interface PdfJsLib {
   getDocument(source: { data: ArrayBuffer }): { promise: Promise<PdfDocument> };
 }
 
-const WORKER_SRC = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const SCRIPT_SRC = '/vendor/pdfjs/pdf.min.js';
+const WORKER_SRC = '/vendor/pdfjs/pdf.worker.min.js';
 
-function pdfjs(): PdfJsLib {
+/** Én igangværende indlæsning ad gangen — to hurtige filvalg deler den. */
+let loading: Promise<PdfJsLib> | null = null;
+
+function pdfjs(): Promise<PdfJsLib> {
   const lib = (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib;
-  if (!lib) throw new Error('pdfjs');
-  return lib;
+  if (lib) return Promise.resolve(lib);
+
+  loading ??= new Promise<PdfJsLib>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = SCRIPT_SRC;
+    script.onload = () => {
+      const loaded = (window as unknown as { pdfjsLib?: PdfJsLib }).pdfjsLib;
+      if (loaded) resolve(loaded);
+      else reject(new Error('pdf.min.js indlæst, men window.pdfjsLib mangler'));
+    };
+    script.onerror = () => {
+      // Nulstilles, så et nyt filvalg kan prøve igen efter en netværksfejl.
+      loading = null;
+      script.remove();
+      reject(new Error(`kunne ikke hente ${SCRIPT_SRC}`));
+    };
+    document.head.appendChild(script);
+  });
+  return loading;
 }
 
 export async function readPdfText(file: File): Promise<string> {
-  const lib = pdfjs();
+  const lib = await pdfjs();
   lib.GlobalWorkerOptions.workerSrc = WORKER_SRC;
   const buffer = await file.arrayBuffer();
   const document = await lib.getDocument({ data: buffer }).promise;

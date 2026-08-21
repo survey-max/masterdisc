@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 
 import './vaerktoej.css';
 
@@ -22,8 +21,11 @@ export const dynamic = 'force-dynamic';
  * archive POST. The user lookup now goes through the auth mock, and the archive
  * save through a server action.
  *
- * pdf.js still comes from cdnjs, exactly as in the POC, so the PDF reading is
- * unchanged. Bundling it locally is a fase 2 question.
+ * pdf.js (samme 3.11.174 som POC'en) serveres fra public/vendor/pdfjs/ og
+ * hentes lazy af lib/jobmatch/pdf.ts, første gang en PDF skal læses. Der er
+ * bevidst intet <Script>-tag her: beforeInteractive virker ikke på sideniveau
+ * (scriptet blev aldrig indlæst i produktion), og afterInteractive ville bare
+ * være en kapløbsbetingelse mod brugerens første filvalg.
  */
 export default async function VaerktoejPage() {
   try {
@@ -37,13 +39,5 @@ export default async function VaerktoejPage() {
     );
   }
 
-  return (
-    <>
-      <Script
-        src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-        strategy="beforeInteractive"
-      />
-      <Tool />
-    </>
-  );
+  return <Tool />;
 }
