@@ -7,7 +7,7 @@ import { LOGIN_TOM, type LoginState } from './login-state';
 
 /**
  * Formularen ser ud som POC'ens, men logger nu rigtigt ind: felterne sendes til
- * server action'en, som taler med Supabase og tjekker allowlisten. Der sker
+ * server action'en, som taler med Supabase og tjekker admin-rollen. Der sker
  * ingen autentificering i browseren, og der ligger ingen Supabase-kald her —
  * med vilje.
  *

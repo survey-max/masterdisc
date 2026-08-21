@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation';
 
-import { AUTH_LOG_PREFIX } from '@/lib/supabase/auth/allowlist';
+import { AUTH_LOG_PREFIX } from '@/lib/supabase/auth/admin-access';
 import { createSupabaseRouteClient } from '@/lib/supabase/auth/route';
 
 /**

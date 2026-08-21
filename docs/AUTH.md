@@ -1,19 +1,22 @@
-# Adgang til portalen — Supabase Auth + allowlist
+# Adgang til portalen — Supabase Auth + admin-rolle
 
 Portalens jobmatch-del ligger bag login. Adgang kræver to ting, ikke én:
 
 1. **En gyldig Supabase-session** (email + adgangskode mod Supabase Auth).
-2. **At brugerens auth-UID står i `PORTAL_ALLOWED_USER_IDS`.**
+2. **At brugeren har admin-rolle i `public.user_profiles`** — dvs. en profil med
+   `auth_user_id` = brugerens auth-UID, rollen `admin` eller `ejer` og uden
+   `disabled`-markering. Det er samme tabel og samme rollebegreb som
+   coachersuniversed's `ADMIN_ROLES` (lib/auth/guard.ts i det andet repo).
 
 Punkt 2 er ikke overforsigtighed. Supabase-projektet er **delt** med
 coachersuniversed, så `auth.users` rummer mange brugere, der intet har med
-portalen at gøre. Uden allowlisten ville "logget ind hos coachersuniversed"
+portalen at gøre. Uden rolletjekket ville "logget ind hos coachersuniversed"
 være det samme som "adgang til jeres jobmatchfiler".
 
 Der oprettes ingen brugere her. Der er intet signup, ingen invitation og ingen
-password-reset — brugerne findes allerede i det delte projekt. Der er heller
-ingen roller, ingen `user_profiles` og ingen ændringer i databasen: allowlisten
-er en miljøvariabel og intet andet.
+password-reset — brugerne OG deres roller administreres i coachersuniversed.
+Portalen læser kun: den slår rollen op i `user_profiles` (med secret-nøglen,
+direkte mod PostgREST) og ændrer intet i tabellen.
 
 ## Miljøvariabler
 
@@ -21,21 +24,26 @@ er en miljøvariabel og intet andet.
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | projektets URL (brugtes allerede) |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | nøglen auth-klienterne bruger. Nu i brug — den var reserveret til netop dette |
-| `PORTAL_ALLOWED_USER_IDS` | kommasepareret liste af Supabase-auth-UID'er (`auth.users.id`), der må se portalen |
+| `SUPABASE_SECRET_KEY` | secret-nøglen (bruges også af datalaget). Admin-tjekket slår rollen op i `user_profiles` med den |
 
-`PORTAL_ALLOWED_USER_IDS` er **ikke** `NEXT_PUBLIC_`: hvem der har adgang, skal
-ikke kunne læses ud af en JS-bundle.
+`SUPABASE_SECRET_KEY` er **ikke** `NEXT_PUBLIC_` og må aldrig kunne læses ud af
+en JS-bundle — admin-tjekket kører udelukkende server-side.
 
-**Fail closed.** Er variablen tom eller ikke sat, afvises hvert eneste login —
-også med korrekt adgangskode — og fejlen skrives i serverloggen med `[portal-auth]`
-foran. En manglende allowlist må aldrig kunne læses som "så lukker vi alle ind".
+**Fail closed.** Mangler en af variablerne, eller fejler selve opslaget i
+`user_profiles`, afvises hvert eneste login — også med korrekt adgangskode — og
+fejlen skrives i serverloggen med `[portal-auth]` foran. En fejl må aldrig kunne
+læses som "så lukker vi alle ind".
 
-UID'et findes i Supabase Studio under Authentication → Users.
+Hvem der har adgang, styres i coachersuniversed's brugeradministration: giv
+brugeren rollen `admin` eller `ejer` i `user_profiles`, og adgangen følger med —
+ingen deploy, intet nyt build.
 
-> Middlewaren kører i Edge-runtime, og Next.js lægger `process.env`-værdier ind i
-> middleware-bundlen ved **build**. Sæt derfor `PORTAL_ALLOWED_USER_IDS` i Vercel
-> (Production, Preview og Development) **før** deploy — en ændring kræver et nyt
-> build for at slå igennem.
+> Middlewaren kører i Edge-runtime. Opslaget i `user_profiles` sker derfor med
+> `fetch` direkte mod PostgREST (`lib/supabase/auth/admin-access.ts`), ikke via
+> supabase-js — middleware-bundlen skal holdes fri for ekstra imports. Next.js
+> lægger `process.env`-værdier ind i middleware-bundlen ved **build**, så
+> `SUPABASE_SECRET_KEY` skal være sat i Vercel (Production, Preview og
+> Development) **før** deploy.
 
 ## Sådan hænger det sammen
 
@@ -43,7 +51,7 @@ UID'et findes i Supabase Studio under Authentication → Users.
 browser ──► middleware.ts ──► guardPortalRequest()      forny session + tjek adgang
                  │                    │
                  │                    ├─ ingen session  ──► 307 /login/
-                 │                    └─ UID uden for listen ──► 307 /login/?fejl=ingen-adgang
+                 │                    └─ ingen admin-rolle ──► 307 /login/?fejl=ingen-adgang
                  │
                  └─► /jobmatch/**  layout.tsx ──► requirePortalAccess()   samme tjek igen
                      /jobmatch/filer/<id>      ──► getPortalSessionUser()
@@ -55,7 +63,7 @@ browser ──► middleware.ts ──► guardPortalRequest()      forny sessio
 | `middleware.ts` | porten foran `/jobmatch/**` (matcher: `/jobmatch`, `/jobmatch/:path*`) |
 | `lib/supabase/auth/middleware.ts` | selve tjekket + fornyelsen af sessionens cookies |
 | `lib/supabase/auth/session.ts` | `getPortalSessionUser` / `requirePortalAccess` / `requirePortalSession` |
-| `lib/supabase/auth/allowlist.ts` | `PORTAL_ALLOWED_USER_IDS` — fail closed |
+| `lib/supabase/auth/admin-access.ts` | admin-tjekket mod `public.user_profiles` (rolle `admin`/`ejer`, ikke disabled) — fail closed |
 | `lib/supabase/auth/server.ts` | klient til server components (må ikke skrive cookies) |
 | `lib/supabase/auth/route.ts` | klient til route handlers og server actions (skriver cookies) |
 | `lib/supabase/auth/browser.ts` | browser-klienten |
@@ -84,8 +92,8 @@ kan forfalskes.
 | Situation | Besked | Log |
 |---|---|---|
 | Forkert email/adgangskode | "Forkert email eller adgangskode" | `[portal-auth] mislykket login for <email>: invalid_credentials …` |
-| Gyldigt login, UID ikke på listen | "Du har ikke adgang til portalen" — og sessionen afsluttes med det samme | `[portal-auth] afvist login: UID <uid> … Sessionen afsluttes igen.` |
-| Allowlisten mangler | generel dansk fejl | `[portal-auth] login spærret — allowlisten er ikke sat op: …` |
+| Gyldigt login uden admin-rolle | "Du har ikke adgang til portalen" — og sessionen afsluttes med det samme | `[portal-auth] afvist login: UID <uid> … Sessionen afsluttes igen.` |
+| Opsætningen mangler eller opslaget fejler | generel dansk fejl | `[portal-auth] login spærret — admin-tjekket er ikke sat op: …` / `[portal-auth] admin-tjekket fejlede for UID …` |
 | Uventet fejl | generel dansk fejl | `[portal-auth] uventet fejl under login: …` |
 | Request mod `/jobmatch/**` uden adgang | sendes til `/login/` | `[portal-auth] adgang nægtet til <sti>: UID … ` |
 
@@ -97,18 +105,20 @@ pnpm dev
 
 1. Åbn `/jobmatch/` uden at være logget ind → sendes til `/login/`.
 2. Log ind med forkert kode → "Forkert email eller adgangskode".
-3. Log ind med en bruger på listen → portalen. "Log ud" står i topbjælken.
-4. Fjern UID'et fra `PORTAL_ALLOWED_USER_IDS` i `.env.local`, og log ind igen →
-   "Du har ikke adgang til portalen", og sessionen er væk (`/jobmatch/` sender
-   stadig til `/login/`). Sæt UID'et tilbage bagefter.
-5. Tøm `PORTAL_ALLOWED_USER_IDS` helt → alle logins afvises med den generelle
-   fejl, og serverloggen siger hvorfor.
+3. Log ind med en bruger med admin-rolle → portalen. "Log ud" står i topbjælken.
+4. Log ind med en gyldig bruger UDEN admin-rolle (fx en customer fra det delte
+   projekt) → "Du har ikke adgang til portalen", og sessionen er væk
+   (`/jobmatch/` sender stadig til `/login/`).
+5. Fjern `SUPABASE_SECRET_KEY` fra `.env.local` → alle logins afvises med den
+   generelle fejl, og serverloggen siger hvorfor. Sæt den tilbage bagefter.
 
 ## Hvad der bevidst IKKE er lavet
 
 - Ingen brugeroprettelse, signup, invitation eller password-reset.
-- Ingen roller, rolletabeller eller `user_profiles` — de hører til det andet repo.
-- Ingen triggers, functions eller RLS-ændringer på `auth.users` eller i `portal`.
+- Ingen egne roller eller rolletabeller — `user_profiles` ejes og administreres
+  af det andet repo; portalen læser kun rollen.
+- Ingen triggers, functions eller RLS-ændringer på `auth.users`, `user_profiles`
+  eller i `portal`.
 - Ingen ændringer i projektets globale Supabase-settings (email templates, SMTP,
   redirect-URL'er, providers).
 - `lib/auth` (mock-brugeren, `MOCK_USER_ID`) er urørt. Den afgør stadig, *hvilken*

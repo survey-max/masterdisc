@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { allowedPortalUserIds, AUTH_LOG_PREFIX, PortalAuthConfigError } from './allowlist';
+import { AUTH_LOG_PREFIX, isPortalAdmin, PortalAuthConfigError } from './admin-access';
 import { createSupabaseServerComponentClient } from './server';
 
 /**
@@ -12,8 +12,9 @@ import { createSupabaseServerComponentClient } from './server';
  *   1. Der er en gyldig Supabase-session. Den verificeres med `getUser()`, som
  *      spørger Supabase' auth-server — ALDRIG med `getSession()`, der blot
  *      læser cookien og derfor kan forfalskes.
- *   2. Brugerens UID står i PORTAL_ALLOWED_USER_IDS. Projektet er delt med en
- *      anden app, så et gyldigt login er i sig selv ingen adgang.
+ *   2. Brugeren har admin-rolle (`admin`/`ejer`) i `public.user_profiles` og er
+ *      ikke disabled. Projektet er delt med en anden app, så et gyldigt login
+ *      er i sig selv ingen adgang.
  *
  * Middlewaren laver samme tjek foran hver /jobmatch/**-request. Det her er
  * laget under: sider, route handlers og server actions spørger selv, så en
@@ -22,15 +23,15 @@ import { createSupabaseServerComponentClient } from './server';
  */
 
 export interface PortalSessionUser {
-  /** Supabase-auth-UID. Det er dette id, allowlisten indeholder. */
+  /** Supabase-auth-UID. Det er dette id, user_profiles.auth_user_id peger på. */
   id: string;
   email: string | null;
 }
 
 /**
  * Den indloggede, tilladte bruger — eller null. Alle tre grunde til null
- * (ingen session, UID uden for listen, manglende opsætning) logges server-side.
- * Ingen af dem giver adgang.
+ * (ingen session, ingen admin-rolle, fejlet/manglende opslag) logges
+ * server-side. Ingen af dem giver adgang.
  */
 export async function getPortalSessionUser(): Promise<PortalSessionUser | null> {
   const supabase = await createSupabaseServerComponentClient();
@@ -46,20 +47,21 @@ export async function getPortalSessionUser(): Promise<PortalSessionUser | null> 
   const user = data.user;
   if (!user) return null;
 
-  let allowed: string[];
+  let erAdmin: boolean;
   try {
-    allowed = allowedPortalUserIds();
-  } catch (configError) {
+    erAdmin = await isPortalAdmin(user.id);
+  } catch (opslagsFejl) {
+    // Fail closed: både manglende opsætning og et fejlet opslag er "nej".
     console.error(
-      `${AUTH_LOG_PREFIX} adgang nægtet — allowlisten er ikke sat op:`,
-      configError instanceof PortalAuthConfigError ? configError.message : configError,
+      `${AUTH_LOG_PREFIX} adgang nægtet — admin-tjekket kunne ikke gennemføres:`,
+      opslagsFejl instanceof PortalAuthConfigError ? opslagsFejl.message : opslagsFejl,
     );
     return null;
   }
 
-  if (!allowed.includes(user.id)) {
+  if (!erAdmin) {
     console.warn(
-      `${AUTH_LOG_PREFIX} adgang nægtet: UID ${user.id} står ikke i PORTAL_ALLOWED_USER_IDS.`,
+      `${AUTH_LOG_PREFIX} adgang nægtet: UID ${user.id} har ikke admin-rolle i user_profiles.`,
     );
     return null;
   }

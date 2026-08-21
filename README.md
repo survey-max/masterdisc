@@ -27,7 +27,6 @@ de vigtigste:
 | `NEXT_PUBLIC_SUPABASE_URL` | Det delte Supabase-projekt. **Påkrævet.** |
 | `SUPABASE_SECRET_KEY` | `sb_secret_…`. **Påkrævet.** Kun server-side, aldrig i klientkode. |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…`. **Påkrævet.** Nøglen login bruger. |
-| `PORTAL_ALLOWED_USER_IDS` | Hvem der må logge ind i portalen: Supabase-auth-UID'er, kommasepareret. **Påkrævet** — er den tom, afvises alle logins. Se [`docs/AUTH.md`](docs/AUTH.md). |
 | `PORTAL_API_TOKEN` | Spærring foran `/api/portal/*`, indtil rigtig auth findes. Valgfri lokalt, påkrævet i produktion. |
 | `PORTAL_DATA_MODE` | `direct` (standard) eller `api` — se `lib/data/index.ts`. |
 | `MOCK_USER_ID` | Hvilken bruger portalen vises som, når man er logget ind. Default: første ikke-spærrede admin. Se `lib/auth`. |
@@ -40,7 +39,7 @@ de vigtigste:
 | `/` | `public_html/index.html` (forsiden) |
 | `/opret` | `public_html/opret/index.html` — eneste sted en kode indtastes; validerer mod `/api/disc/verify-code` og sender kun godkendte koder til `/profil/?kode=…` |
 | `/privatliv` | `public_html/privatliv/index.html` |
-| `/login` | `jobmatch/index.php`, login — Supabase Auth + allowlist, se [`docs/AUTH.md`](docs/AUTH.md) |
+| `/login` | `jobmatch/index.php`, login — Supabase Auth + admin-rolle i `user_profiles`, se [`docs/AUTH.md`](docs/AUTH.md) |
 | `/jobmatch` | `jobmatch/index.php`, den indloggede portal (Oversigt + Jobmatchfiler). Bag login |
 | `/jobmatch/admin` | `jobmatch/admin.php`, den indloggede del |
 | `/jobmatch/vaerktoej` | `jobmatch/vaerktoej.php`, JobMatch-værktøjet |
@@ -58,7 +57,7 @@ lib/data/supabase/      Supabase-implementeringen (standard) + kolonne-mapping
 lib/data/api/           samme interface over /api/portal/* (PORTAL_DATA_MODE=api)
 lib/data/json/          POC'ens JSON-implementering — bevaret, men ikke i brug
 lib/supabase/           klienten med sb_secret_-nøglen. Kun server-side
-lib/supabase/auth/      Supabase Auth: session, allowlist og adgangstjek (docs/AUTH.md)
+lib/supabase/auth/      Supabase Auth: session, admin-tjek og adgangstjek (docs/AUTH.md)
 lib/auth/               HVILKEN portalbruger siderne renderes for (MOCK_USER_ID)
 lib/jobmatch/           JobMatch-model, beregning, rapport og arkiv-inputregler
 public/profil/          masterdisc, kopieret uændret (tre nødvendige rettelser)
@@ -80,11 +79,12 @@ Regler, der er værd at holde:
   siden viser fejlen. Aldrig en tom liste eller et 0 i stedet.
 - **Ingen hjemmelavet auth.** Ingen bcrypt, ingen egne sessioner, ingen egne
   cookies. Login er Supabase Auth, og adgangen afgøres server-side af
-  allowlisten i `PORTAL_ALLOWED_USER_IDS` — se [`docs/AUTH.md`](docs/AUTH.md).
+  admin-rollen (`admin`/`ejer`) i `public.user_profiles` — se
+  [`docs/AUTH.md`](docs/AUTH.md).
 
 ## Dokumenter
 
-- `docs/AUTH.md` — login, allowlisten og hvordan /jobmatch/** er spærret
+- `docs/AUTH.md` — login, admin-tjekket og hvordan /jobmatch/** er spærret
 - `docs/SUPABASE.md` — skemaet, API-routene, opsætningen og testvejledningen for Supabase-integrationen
 - `docs/KORTLAEGNING.md` — hvad der blev porteret, hvad der er legacy, hvad der er dødt
 - `docs/PROFIL-INDLEJRING.md` — masterdisc under `/profil/` og kodekoblingen

@@ -1,4 +1,4 @@
-import { PortalAuthConfigError } from './allowlist';
+import { PortalAuthConfigError } from './admin-access';
 
 /**
  * De to offentlige Supabase-variabler, auth-klienterne deles om.

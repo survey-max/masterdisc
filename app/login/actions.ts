@@ -2,26 +2,31 @@
 
 import { redirect } from 'next/navigation';
 
-import { AUTH_LOG_PREFIX, allowedPortalUserIds } from '@/lib/supabase/auth/allowlist';
+import {
+  AUTH_LOG_PREFIX,
+  isPortalAdmin,
+  portalAdminAccessEnv,
+} from '@/lib/supabase/auth/admin-access';
 import { createSupabaseRouteClient } from '@/lib/supabase/auth/route';
 
 import type { LoginState } from './login-state';
 
 /**
  * ============================================================================
- * LOGIN — SERVER-SIDE, MED ALLOWLIST
+ * LOGIN — SERVER-SIDE, MED ADMIN-TJEK MOD user_profiles
  * ============================================================================
  * Hele flowet ligger i en server action, ikke i browseren. Det er ikke en
- * smagssag: allowlist-tjekket skal ske et sted, klienten ikke kan springe over,
+ * smagssag: admin-tjekket skal ske et sted, klienten ikke kan springe over,
  * og en afvist bruger skal logges ud IGEN med det samme, før svaret sendes.
  * Gjorde browseren login'et, ville den sidde med en gyldig session i det
  * sekund, tjekket faldt ud til nej.
  *
  * Rækkefølgen er:
- *   1. allowlisten læses FØRST — er den ikke sat op, logges der ind på ingen
- *      måde (fail closed, uanset om kodeordet er rigtigt)
+ *   1. opsætningen til admin-tjekket valideres FØRST — mangler den, logges der
+ *      ind på ingen måde (fail closed, uanset om kodeordet er rigtigt)
  *   2. Supabase verificerer email + adgangskode
- *   3. UID'et holdes op mod listen; ellers signOut() og "ingen adgang"
+ *   3. UID'et slås op i user_profiles og skal have rollen `admin` eller `ejer`
+ *      (og ikke være disabled); ellers signOut() og "ingen adgang"
  *
  * Ingen tavse fejl: brugeren får en dansk besked, og alt, der ikke er et
  * almindeligt forkert kodeord, logges server-side.
@@ -56,14 +61,14 @@ export async function logIndAction(_prev: LoginState, formData: FormData): Promi
 }
 
 async function forsoegLogin(email: string, kode: string): Promise<LoginState & { uid?: string }> {
-  // Fail closed: uden allowlist er der ingen, der må lukkes ind — heller ikke
-  // med et korrekt kodeord.
-  let allowed: string[];
+  // Fail closed: kan admin-tjekket ikke laves, er der ingen, der må lukkes
+  // ind — heller ikke med et korrekt kodeord. Valideres FØR login-forsøget,
+  // så en manglende opsætning aldrig efterlader en halvfærdig session.
   try {
-    allowed = allowedPortalUserIds();
+    portalAdminAccessEnv();
   } catch (configError) {
     console.error(
-      `${AUTH_LOG_PREFIX} login spærret — allowlisten er ikke sat op:`,
+      `${AUTH_LOG_PREFIX} login spærret — admin-tjekket er ikke sat op:`,
       configError instanceof Error ? configError.message : configError,
     );
     return { fejl: FEJL_GENEREL };
@@ -88,22 +93,44 @@ async function forsoegLogin(email: string, kode: string): Promise<LoginState & {
     return { fejl: FEJL_GENEREL };
   }
 
-  if (!allowed.includes(user.id)) {
-    console.warn(
-      `${AUTH_LOG_PREFIX} afvist login: UID ${user.id} (${email}) står ikke i PORTAL_ALLOWED_USER_IDS. Sessionen afsluttes igen.`,
+  let erAdmin: boolean;
+  try {
+    erAdmin = await isPortalAdmin(user.id);
+  } catch (opslagsFejl) {
+    // Fail closed: fejler opslaget, behandles det som "ingen adgang" — men
+    // sessionen skal stadig væk, og fejlen skal kunne findes i loggen.
+    console.error(
+      `${AUTH_LOG_PREFIX} admin-tjekket fejlede for UID ${user.id} (${email}):`,
+      opslagsFejl instanceof Error ? opslagsFejl.message : opslagsFejl,
     );
-    const { error: signOutError } = await supabase.auth.signOut();
-    if (signOutError) {
-      // Sessionen skal væk. Lykkes det ikke, er det alvorligt nok til at blive
-      // sagt højt i loggen — brugeren får stadig ingen adgang.
-      console.error(
-        `${AUTH_LOG_PREFIX} kunne IKKE afslutte sessionen for afvist UID ${user.id}:`,
-        signOutError.message,
-      );
-    }
+    await afslutAfvistSession(supabase, user.id);
+    return { fejl: FEJL_GENEREL };
+  }
+
+  if (!erAdmin) {
+    console.warn(
+      `${AUTH_LOG_PREFIX} afvist login: UID ${user.id} (${email}) har ikke admin-rolle i user_profiles. Sessionen afsluttes igen.`,
+    );
+    await afslutAfvistSession(supabase, user.id);
     return { fejl: FEJL_INGEN_ADGANG };
   }
 
   console.info(`${AUTH_LOG_PREFIX} login ok: UID ${user.id} (${email}).`);
   return { fejl: null, uid: user.id };
+}
+
+/** Log en afvist bruger ud igen, før svaret sendes. Sessionen SKAL væk. */
+async function afslutAfvistSession(
+  supabase: Awaited<ReturnType<typeof createSupabaseRouteClient>>,
+  userId: string,
+): Promise<void> {
+  const { error: signOutError } = await supabase.auth.signOut();
+  if (signOutError) {
+    // Lykkes det ikke, er det alvorligt nok til at blive sagt højt i loggen —
+    // brugeren får stadig ingen adgang.
+    console.error(
+      `${AUTH_LOG_PREFIX} kunne IKKE afslutte sessionen for afvist UID ${userId}:`,
+      signOutError.message,
+    );
+  }
 }

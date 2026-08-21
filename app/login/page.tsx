@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Udseendet er POC'ens login (public_html/jobmatch/index.php), men adgangen er
- * rigtig nu: Supabase Auth + allowlisten i PORTAL_ALLOWED_USER_IDS.
+ * rigtig nu: Supabase Auth + admin-rolle i user_profiles (se docs/AUTH.md).
  *
  * Login ligger på sin egen rute uden for /jobmatch/**, fordi middlewaren spærrer
  * alt derinde — lå login'et under /jobmatch/, ville en udlogget bruger blive
@@ -35,7 +35,7 @@ export default async function Login({
 }: {
   searchParams: Promise<{ fejl?: string }>;
 }) {
-  // Er man allerede logget ind OG på allowlisten, er der intet at logge ind på.
+  // Er man allerede logget ind OG admin, er der intet at logge ind på.
   const session = await getPortalSessionUser();
   if (session) redirect('/jobmatch/');
 

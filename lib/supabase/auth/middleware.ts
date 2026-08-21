@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { createServerClient } from '@supabase/ssr';
 
-import { allowedPortalUserIds, AUTH_LOG_PREFIX, PortalAuthConfigError } from './allowlist';
+import { AUTH_LOG_PREFIX, isPortalAdmin, PortalAuthConfigError } from './admin-access';
 import { supabaseAuthEnv } from './config';
 
 /**
@@ -15,13 +15,15 @@ import { supabaseAuthEnv } from './config';
  *      cookies skal skrives på det svar, der sendes videre — både på
  *      NextResponse.next() og på et eventuelt redirect. Sker det ikke, ryger
  *      brugeren ud, så snart token'et udløber.
- *   2. TJEK ADGANGEN. Gyldig session OG UID på allowlisten, ellers /login/.
+ *   2. TJEK ADGANGEN. Gyldig session OG admin-rolle (`admin`/`ejer`) i
+ *      `public.user_profiles`, ellers /login/.
  *
  * Der må ikke ligge kode mellem `createServerClient` og `getUser()`: alt, der
  * kan nå at læse cookies imellem, kan gøre sessionen ustabil.
  *
- * Kører i Edge-runtime. Det betyder, at PORTAL_ALLOWED_USER_IDS skal være sat
- * FØR buildet — se docs/AUTH.md.
+ * Kører i Edge-runtime. Admin-opslaget går derfor gennem fetch mod PostgREST
+ * (se admin-access.ts), og SUPABASE_SECRET_KEY skal være sat FØR buildet —
+ * se docs/AUTH.md.
  * ============================================================================
  */
 
@@ -66,21 +68,22 @@ export async function guardPortalRequest(request: NextRequest): Promise<NextResp
   const user = data.user;
   if (!user) return redirectToLogin(request, response);
 
-  let allowed: string[];
+  let erAdmin: boolean;
   try {
-    allowed = allowedPortalUserIds();
-  } catch (configError) {
+    erAdmin = await isPortalAdmin(user.id);
+  } catch (opslagsFejl) {
+    // Fail closed: manglende opsætning OG et fejlet opslag spærrer begge.
     console.error(
-      `${AUTH_LOG_PREFIX} adgang nægtet — allowlisten er ikke sat op:`,
-      configError instanceof PortalAuthConfigError ? configError.message : configError,
+      `${AUTH_LOG_PREFIX} adgang nægtet — admin-tjekket kunne ikke gennemføres:`,
+      opslagsFejl instanceof PortalAuthConfigError ? opslagsFejl.message : opslagsFejl,
     );
     return redirectToLogin(request, response, 'opsaetning');
   }
 
-  if (!allowed.includes(user.id)) {
+  if (!erAdmin) {
     console.warn(
       `${AUTH_LOG_PREFIX} adgang nægtet til ${request.nextUrl.pathname}: ` +
-        `UID ${user.id} står ikke i PORTAL_ALLOWED_USER_IDS.`,
+        `UID ${user.id} har ikke admin-rolle i user_profiles.`,
     );
     return redirectToLogin(request, response, 'ingen-adgang');
   }
