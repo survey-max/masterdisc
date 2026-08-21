@@ -26,7 +26,8 @@ de vigtigste:
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | Det delte Supabase-projekt. **Påkrævet.** |
 | `SUPABASE_SECRET_KEY` | `sb_secret_…`. **Påkrævet.** Kun server-side, aldrig i klientkode. |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…`. **Påkrævet.** Nøglen login bruger. |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…`. **Påkrævet.** Nøglen login-verifikationen bruger. |
+| `PORTAL_SESSION_SECRET` | Hemmeligheden bag portalens signerede sessionscookie. **Påkrævet** — min. 32 tegn, se [`docs/AUTH.md`](docs/AUTH.md). |
 | `PORTAL_API_TOKEN` | Spærring foran `/api/portal/*`, indtil rigtig auth findes. Valgfri lokalt, påkrævet i produktion. |
 | `PORTAL_DATA_MODE` | `direct` (standard) eller `api` — se `lib/data/index.ts`. |
 | `MOCK_USER_ID` | Hvilken bruger portalen vises som, når man er logget ind. Default: første ikke-spærrede admin. Se `lib/auth`. |
@@ -57,7 +58,7 @@ lib/data/supabase/      Supabase-implementeringen (standard) + kolonne-mapping
 lib/data/api/           samme interface over /api/portal/* (PORTAL_DATA_MODE=api)
 lib/data/json/          POC'ens JSON-implementering — bevaret, men ikke i brug
 lib/supabase/           klienten med sb_secret_-nøglen. Kun server-side
-lib/supabase/auth/      Supabase Auth: session, admin-tjek og adgangstjek (docs/AUTH.md)
+lib/supabase/auth/      login, portalens signerede sessionscookie og admin-tjek (docs/AUTH.md)
 lib/auth/               HVILKEN portalbruger siderne renderes for (MOCK_USER_ID)
 lib/jobmatch/           JobMatch-model, beregning, rapport og arkiv-inputregler
 public/profil/          masterdisc, kopieret uændret (tre nødvendige rettelser)
@@ -77,10 +78,11 @@ Regler, der er værd at holde:
   aldrig ud fra noget klienten har sendt.
 - **Ingen tavse fejl.** Mangler eller er en datafil korrupt, kaster datalaget, og
   siden viser fejlen. Aldrig en tom liste eller et 0 i stedet.
-- **Ingen hjemmelavet auth.** Ingen bcrypt, ingen egne sessioner, ingen egne
-  cookies. Login er Supabase Auth, og adgangen afgøres server-side af
-  admin-rollen (`admin`/`ejer`) i `public.user_profiles` — se
-  [`docs/AUTH.md`](docs/AUTH.md).
+- **Ingen hjemmelavet adgangskodehåndtering.** Ingen bcrypt, ingen kodeord i
+  egne tabeller: kodeordet verificeres af Supabase Auth. Sessionen derefter er
+  portalens egen lille HMAC-signerede, httpOnly cookie (samme mønster som
+  coachersuniversed), og adgangen afgøres server-side af admin-rollen
+  (`admin`/`ejer`) i `public.user_profiles` — se [`docs/AUTH.md`](docs/AUTH.md).
 
 ## Dokumenter
 

@@ -14,7 +14,6 @@
     "typecheck:vercel": "tsc --noEmit -p tsconfig.vercel.json"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "2.112.3",
     "next": "15.5.23",
     "react": "19.1.1",

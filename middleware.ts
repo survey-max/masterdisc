@@ -9,7 +9,8 @@ import { guardPortalRequest } from './lib/supabase/auth/middleware';
  * server components (portalen, admin, værktøjet), en route handler
  * (/jobmatch/filer/<id>) og server actions, der posterer tilbage til de samme
  * URL'er. Middlewaren er det eneste sted, alle fire slags requests kommer
- * forbi — og den er samtidig det sted, @supabase/ssr fornyer sessionen.
+ * forbi — og den rydder samtidig op i gamle @supabase/ssr-cookies fra før
+ * skiftet til portalens egen sessionscookie.
  *
  * Den står ikke alene: hvert af de fire steder spørger selv gennem
  * lib/supabase/auth/session.ts, så en fremtidig rute uden for matcheren nedenfor

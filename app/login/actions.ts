@@ -1,13 +1,23 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+
+import { createClient } from '@supabase/supabase-js';
 
 import {
   AUTH_LOG_PREFIX,
   isPortalAdmin,
   portalAdminAccessEnv,
 } from '@/lib/supabase/auth/admin-access';
-import { createSupabaseRouteClient } from '@/lib/supabase/auth/route';
+import { supabaseAuthEnv } from '@/lib/supabase/auth/config';
+import {
+  createPortalSessionValue,
+  isLegacySupabaseCookie,
+  PORTAL_SESSION_COOKIE,
+  portalSessionCookieOptions,
+  portalSessionSecret,
+} from '@/lib/supabase/auth/portal-session';
 
 import type { LoginState } from './login-state';
 
@@ -15,21 +25,24 @@ import type { LoginState } from './login-state';
  * ============================================================================
  * LOGIN — SERVER-SIDE, MED ADMIN-TJEK MOD user_profiles
  * ============================================================================
+ * Supabase Auth bruges KUN til at verificere email + adgangskode. Klienten er
+ * tilstandsløs (ingen cookies, ingen persisteret session): Supabase-sessionen
+ * fra signInWithPassword smides væk igen med det samme, og det eneste,
+ * browseren får, er portalens egen lille signerede cookie
+ * (lib/supabase/auth/portal-session.ts).
+ *
  * Hele flowet ligger i en server action, ikke i browseren. Det er ikke en
  * smagssag: admin-tjekket skal ske et sted, klienten ikke kan springe over,
- * og en afvist bruger skal logges ud IGEN med det samme, før svaret sendes.
- * Gjorde browseren login'et, ville den sidde med en gyldig session i det
- * sekund, tjekket faldt ud til nej.
+ * og cookien er httpOnly og kan slet ikke sættes fra klientkode.
  *
  * Rækkefølgen er:
- *   1. opsætningen til admin-tjekket valideres FØRST — mangler den, logges der
- *      ind på ingen måde (fail closed, uanset om kodeordet er rigtigt)
+ *   1. opsætningen valideres FØRST — mangler admin-tjekkets nøgler eller
+ *      sessionshemmeligheden, logges der ind på ingen måde (fail closed,
+ *      uanset om kodeordet er rigtigt)
  *   2. Supabase verificerer email + adgangskode
  *   3. UID'et slås op i user_profiles og skal have rollen `admin` eller `ejer`
- *      (og ikke være disabled); ellers signOut() og "ingen adgang"
- *
- * Ingen tavse fejl: brugeren får en dansk besked, og alt, der ikke er et
- * almindeligt forkert kodeord, logges server-side.
+ *      (og ikke være disabled); ellers "ingen adgang" — og ingen cookie
+ *   4. Supabase-sessionen trækkes tilbage (signOut), og portal-cookien sættes
  * ============================================================================
  */
 
@@ -61,20 +74,22 @@ export async function logIndAction(_prev: LoginState, formData: FormData): Promi
 }
 
 async function forsoegLogin(email: string, kode: string): Promise<LoginState & { uid?: string }> {
-  // Fail closed: kan admin-tjekket ikke laves, er der ingen, der må lukkes
-  // ind — heller ikke med et korrekt kodeord. Valideres FØR login-forsøget,
-  // så en manglende opsætning aldrig efterlader en halvfærdig session.
+  // Fail closed: kan admin-tjekket eller cookiesigneringen ikke laves, er der
+  // ingen, der må lukkes ind — heller ikke med et korrekt kodeord. Valideres
+  // FØR login-forsøget, så en manglende opsætning aldrig når at skabe noget.
   try {
     portalAdminAccessEnv();
+    portalSessionSecret();
   } catch (configError) {
     console.error(
-      `${AUTH_LOG_PREFIX} login spærret — admin-tjekket er ikke sat op:`,
+      `${AUTH_LOG_PREFIX} login spærret — opsætningen mangler:`,
       configError instanceof Error ? configError.message : configError,
     );
     return { fejl: FEJL_GENEREL };
   }
 
-  const supabase = await createSupabaseRouteClient();
+  const supabase = opretLoginKlient();
+
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: kode });
 
   if (error) {
@@ -97,40 +112,70 @@ async function forsoegLogin(email: string, kode: string): Promise<LoginState & {
   try {
     erAdmin = await isPortalAdmin(user.id);
   } catch (opslagsFejl) {
-    // Fail closed: fejler opslaget, behandles det som "ingen adgang" — men
-    // sessionen skal stadig væk, og fejlen skal kunne findes i loggen.
+    // Fail closed: fejler opslaget, behandles det som "ingen adgang".
     console.error(
       `${AUTH_LOG_PREFIX} admin-tjekket fejlede for UID ${user.id} (${email}):`,
       opslagsFejl instanceof Error ? opslagsFejl.message : opslagsFejl,
     );
-    await afslutAfvistSession(supabase, user.id);
+    await traekSupabaseSessionTilbage(supabase, user.id);
     return { fejl: FEJL_GENEREL };
   }
 
+  // Supabase-sessionen skal væk uanset udfaldet: portalen bruger sin egen
+  // cookie, og et refresh-token, ingen nogensinde bruger, skal ikke ligge og
+  // være gyldigt hos Supabase.
+  await traekSupabaseSessionTilbage(supabase, user.id);
+
   if (!erAdmin) {
     console.warn(
-      `${AUTH_LOG_PREFIX} afvist login: UID ${user.id} (${email}) har ikke admin-rolle i user_profiles. Sessionen afsluttes igen.`,
+      `${AUTH_LOG_PREFIX} afvist login: UID ${user.id} (${email}) har ikke admin-rolle i user_profiles.`,
     );
-    await afslutAfvistSession(supabase, user.id);
     return { fejl: FEJL_INGEN_ADGANG };
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set(
+    PORTAL_SESSION_COOKIE,
+    await createPortalSessionValue({ uid: user.id, email: user.email ?? null }),
+    portalSessionCookieOptions(),
+  );
+
+  // Ryd op i gamle @supabase/ssr-cookies fra før skiftet, mens vi er her.
+  for (const cookie of cookieStore.getAll()) {
+    if (isLegacySupabaseCookie(cookie.name)) cookieStore.delete(cookie.name);
   }
 
   console.info(`${AUTH_LOG_PREFIX} login ok: UID ${user.id} (${email}).`);
   return { fejl: null, uid: user.id };
 }
 
-/** Log en afvist bruger ud igen, før svaret sendes. Sessionen SKAL væk. */
-async function afslutAfvistSession(
-  supabase: Awaited<ReturnType<typeof createSupabaseRouteClient>>,
+/**
+ * Tilstandsløs klient: publishable-nøglen, ingen cookies, ingen persistens.
+ * Sessionen, signInWithPassword skaber, lever kun i login-forsøgets scope.
+ */
+function opretLoginKlient() {
+  const env = supabaseAuthEnv();
+  return createClient(env.url, env.publishableKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+}
+
+/**
+ * Trækker refresh-token'et fra signInWithPassword tilbage hos Supabase.
+ * Scope 'local' rammer kun DENNE session — brugerens eventuelle sessioner i
+ * coachersuniversed (samme delte projekt!) må aldrig logges ud herfra.
+ */
+async function traekSupabaseSessionTilbage(
+  supabase: ReturnType<typeof opretLoginKlient>,
   userId: string,
 ): Promise<void> {
-  const { error: signOutError } = await supabase.auth.signOut();
-  if (signOutError) {
-    // Lykkes det ikke, er det alvorligt nok til at blive sagt højt i loggen —
-    // brugeren får stadig ingen adgang.
+  const { error } = await supabase.auth.signOut({ scope: 'local' });
+  if (error) {
+    // Ikke adgangskritisk (portalen bruger ikke token'et), men det skal kunne
+    // findes i loggen, hvis døde sessioner hober sig op hos Supabase.
     console.error(
-      `${AUTH_LOG_PREFIX} kunne IKKE afslutte sessionen for afvist UID ${userId}:`,
-      signOutError.message,
+      `${AUTH_LOG_PREFIX} kunne ikke trække Supabase-sessionen tilbage for UID ${userId}:`,
+      error.message,
     );
   }
 }

@@ -2,7 +2,10 @@
 
 Portalens jobmatch-del ligger bag login. Adgang kræver to ting, ikke én:
 
-1. **En gyldig Supabase-session** (email + adgangskode mod Supabase Auth).
+1. **En gyldig portal-session** — portalens egen HMAC-signerede, httpOnly
+   cookie (`portal-session`). Supabase Auth bruges KUN i selve login-øjeblikket
+   til at verificere email + adgangskode; Supabase-sessionen trækkes tilbage
+   med det samme og gemmes aldrig i cookies.
 2. **At brugeren har admin-rolle i `public.user_profiles`** — dvs. en profil med
    `auth_user_id` = brugerens auth-UID, rollen `admin` eller `ejer` og uden
    `disabled`-markering. Det er samme tabel og samme rollebegreb som
@@ -23,11 +26,13 @@ direkte mod PostgREST) og ændrer intet i tabellen.
 | Variabel | Rolle |
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | projektets URL (brugtes allerede) |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | nøglen auth-klienterne bruger. Nu i brug — den var reserveret til netop dette |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | nøglen, login-action'ens tilstandsløse klient verificerer kodeordet med |
 | `SUPABASE_SECRET_KEY` | secret-nøglen (bruges også af datalaget). Admin-tjekket slår rollen op i `user_profiles` med den |
+| `PORTAL_SESSION_SECRET` | hemmeligheden, portal-sessionscookien HMAC-signeres med. Min. 32 tegn (`openssl rand -base64 48`). Rotation logger alle ud |
 
-`SUPABASE_SECRET_KEY` er **ikke** `NEXT_PUBLIC_` og må aldrig kunne læses ud af
-en JS-bundle — admin-tjekket kører udelukkende server-side.
+`SUPABASE_SECRET_KEY` og `PORTAL_SESSION_SECRET` er **ikke** `NEXT_PUBLIC_` og
+må aldrig kunne læses ud af en JS-bundle — både admin-tjek og signering kører
+udelukkende server-side.
 
 **Fail closed.** Mangler en af variablerne, eller fejler selve opslaget i
 `user_profiles`, afvises hvert eneste login — også med korrekt adgangskode — og
@@ -42,13 +47,13 @@ ingen deploy, intet nyt build.
 > `fetch` direkte mod PostgREST (`lib/supabase/auth/admin-access.ts`), ikke via
 > supabase-js — middleware-bundlen skal holdes fri for ekstra imports. Next.js
 > lægger `process.env`-værdier ind i middleware-bundlen ved **build**, så
-> `SUPABASE_SECRET_KEY` skal være sat i Vercel (Production, Preview og
-> Development) **før** deploy.
+> `SUPABASE_SECRET_KEY` og `PORTAL_SESSION_SECRET` skal være sat i Vercel
+> (Production, Preview og Development) **før** deploy.
 
 ## Sådan hænger det sammen
 
 ```
-browser ──► middleware.ts ──► guardPortalRequest()      forny session + tjek adgang
+browser ──► middleware.ts ──► guardPortalRequest()      verificér cookie + tjek rolle
                  │                    │
                  │                    ├─ ingen session  ──► 307 /login/
                  │                    └─ ingen admin-rolle ──► 307 /login/?fejl=ingen-adgang
@@ -61,12 +66,11 @@ browser ──► middleware.ts ──► guardPortalRequest()      forny sessio
 | Fil | Rolle |
 |---|---|
 | `middleware.ts` | porten foran `/jobmatch/**` (matcher: `/jobmatch`, `/jobmatch/:path*`) |
-| `lib/supabase/auth/middleware.ts` | selve tjekket + fornyelsen af sessionens cookies |
+| `lib/supabase/auth/middleware.ts` | selve tjekket + oprydning af gamle @supabase/ssr-cookies |
+| `lib/supabase/auth/portal-session.ts` | sessionscookien: HMAC-signering, verifikation, cookie-attributter |
 | `lib/supabase/auth/session.ts` | `getPortalSessionUser` / `requirePortalAccess` / `requirePortalSession` |
 | `lib/supabase/auth/admin-access.ts` | admin-tjekket mod `public.user_profiles` (rolle `admin`/`ejer`, ikke disabled) — fail closed |
-| `lib/supabase/auth/server.ts` | klient til server components (må ikke skrive cookies) |
-| `lib/supabase/auth/route.ts` | klient til route handlers og server actions (skriver cookies) |
-| `lib/supabase/auth/browser.ts` | browser-klienten |
+| `lib/supabase/auth/config.ts` | de offentlige Supabase-variabler til login-verifikationen |
 | `app/login/` | login-siden og server action'en, der logger ind |
 | `app/jobmatch/layout.tsx` | adgangstjek for alle sider under `/jobmatch/**` |
 | `app/jobmatch/LogUdKnap.tsx` + `auth-actions.ts` | "Log ud" i topbjælken |
@@ -75,24 +79,37 @@ browser ──► middleware.ts ──► guardPortalRequest()      forny sessio
 
 `/jobmatch/**` er ikke kun sider: der er en route handler (`/jobmatch/filer/<id>`)
 og server actions, der POST'er tilbage til de samme URL'er. Middlewaren er det
-eneste sted, alle tre slags requests kommer forbi — og @supabase/ssr fornyer
-sessionens cookies netop dér. Et tjek i hver server component ville lade
-route handleren og server actions stå åbne.
+eneste sted, alle tre slags requests kommer forbi. Et tjek i hver server
+component ville lade route handleren og server actions stå åbne.
 
 Den står ikke alene: layoutet, route handleren og begge server action-filer
 spørger selv gennem `lib/supabase/auth/session.ts`. En fremtidig rute, der ryger
 uden for matcheren, bliver derfor ikke til en åben dør.
 
-Alle tjek sker **server-side** og verificeres med `getUser()`, som spørger
-Supabase' auth-server. Aldrig `getSession()`, der blot læser cookien og derfor
-kan forfalskes.
+Alle tjek sker **server-side**: cookien verificeres mod HMAC-signaturen
+(kan ikke forfalskes uden `PORTAL_SESSION_SECRET`), og rollen slås op i
+`user_profiles` ved HVERT request. Cookien beviser kun identitet — der ligger
+intet privilegium cachet i den, så en fjernet admin-rolle virker med det samme.
+
+### Hvorfor portalens egen cookie og ikke @supabase/ssr
+
+Portalen brugte oprindeligt @supabase/ssr, som gemmer HELE Supabase-sessionen i
+cookies — inklusive brugerens metadata. En bruger med et profilfoto gemt som
+data-URI i metadataen fik en cookie på 89 KB fordelt på 28 bidder, og Vercel
+afviser alle requests med headers over 16 KB (`494 REQUEST_HEADER_TOO_LARGE`)
+FØR portalens kode kører — hele domænet var dødt for den bruger, og portalen
+kunne ikke engang rette det selv. Portalens egen cookie er nogle få hundrede
+bytes med fast indhold (`{v, uid, email, exp}`), er httpOnly (JavaScript kan
+ikke læse den) og indeholder intet brugerredigerbart. Mønsteret er det samme
+som coachersuniversed's session (lib/auth/session.ts i det andet repo).
+Middlewaren og login/log ud sletter desuden gamle `sb-…`-cookies, når de ser dem.
 
 ## Hvad brugeren ser
 
 | Situation | Besked | Log |
 |---|---|---|
 | Forkert email/adgangskode | "Forkert email eller adgangskode" | `[portal-auth] mislykket login for <email>: invalid_credentials …` |
-| Gyldigt login uden admin-rolle | "Du har ikke adgang til portalen" — og sessionen afsluttes med det samme | `[portal-auth] afvist login: UID <uid> … Sessionen afsluttes igen.` |
+| Gyldigt login uden admin-rolle | "Du har ikke adgang til portalen" — og der sættes ingen cookie | `[portal-auth] afvist login: UID <uid> … har ikke admin-rolle i user_profiles.` |
 | Opsætningen mangler eller opslaget fejler | generel dansk fejl | `[portal-auth] login spærret — admin-tjekket er ikke sat op: …` / `[portal-auth] admin-tjekket fejlede for UID …` |
 | Uventet fejl | generel dansk fejl | `[portal-auth] uventet fejl under login: …` |
 | Request mod `/jobmatch/**` uden adgang | sendes til `/login/` | `[portal-auth] adgang nægtet til <sti>: UID … ` |
@@ -107,10 +124,11 @@ pnpm dev
 2. Log ind med forkert kode → "Forkert email eller adgangskode".
 3. Log ind med en bruger med admin-rolle → portalen. "Log ud" står i topbjælken.
 4. Log ind med en gyldig bruger UDEN admin-rolle (fx en customer fra det delte
-   projekt) → "Du har ikke adgang til portalen", og sessionen er væk
+   projekt) → "Du har ikke adgang til portalen", og der er ingen cookie
    (`/jobmatch/` sender stadig til `/login/`).
-5. Fjern `SUPABASE_SECRET_KEY` fra `.env.local` → alle logins afvises med den
-   generelle fejl, og serverloggen siger hvorfor. Sæt den tilbage bagefter.
+5. Fjern `SUPABASE_SECRET_KEY` eller `PORTAL_SESSION_SECRET` fra `.env.local` →
+   alle logins afvises med den generelle fejl, og serverloggen siger hvorfor.
+   Sæt dem tilbage bagefter.
 
 ## Hvad der bevidst IKKE er lavet
 

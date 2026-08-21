@@ -1,12 +1,13 @@
 import { PortalAuthConfigError } from './admin-access';
 
 /**
- * De to offentlige Supabase-variabler, auth-klienterne deles om.
+ * De to offentlige Supabase-variabler til login-verifikationen.
  *
- * Bemærk forskellen til lib/supabase/server.ts: DEN klient bruger den hemmelige
- * nøgle og går uden om RLS (maskinadgang til schemaet `portal`). Auth-klienterne
- * her bruger publishable-nøglen og handler på vegne af den indloggede bruger —
- * de to må aldrig blandes sammen.
+ * Publishable-nøglen bruges KUN i login-action'ens tilstandsløse klient, der
+ * verificerer email + adgangskode (app/login/actions.ts). Bemærk forskellen
+ * til lib/supabase/server.ts: DEN klient bruger den hemmelige nøgle og går
+ * uden om RLS (maskinadgang til schemaet `portal`) — de to må aldrig blandes
+ * sammen.
  */
 export interface SupabaseAuthEnv {
   url: string;

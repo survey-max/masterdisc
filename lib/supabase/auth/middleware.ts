@@ -1,29 +1,30 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { createServerClient } from '@supabase/ssr';
-
 import { AUTH_LOG_PREFIX, isPortalAdmin, PortalAuthConfigError } from './admin-access';
-import { supabaseAuthEnv } from './config';
+import {
+  isLegacySupabaseCookie,
+  PORTAL_SESSION_COOKIE,
+  verifyPortalSessionValue,
+} from './portal-session';
 
 /**
  * ============================================================================
  * MIDDLEWAREN — DEN FØRSTE PORT FORAN /jobmatch/**
  * ============================================================================
- * To opgaver, i den rækkefølge @supabase/ssr kræver:
+ * Verificerer portal-sessionscookien (HMAC + udløb) og slår admin-rollen op i
+ * user_profiles. Gyldig cookie OG admin-rolle, ellers /login/.
  *
- *   1. FORNY SESSIONEN. `getUser()` opdaterer access-token'et, og de nye
- *      cookies skal skrives på det svar, der sendes videre — både på
- *      NextResponse.next() og på et eventuelt redirect. Sker det ikke, ryger
- *      brugeren ud, så snart token'et udløber.
- *   2. TJEK ADGANGEN. Gyldig session OG admin-rolle (`admin`/`ejer`) i
- *      `public.user_profiles`, ellers /login/.
- *
- * Der må ikke ligge kode mellem `createServerClient` og `getUser()`: alt, der
- * kan nå at læse cookies imellem, kan gøre sessionen ustabil.
+ * Der er ingen Supabase-session at forny længere: cookien er portalens egen og
+ * fornys ikke — den udløber efter PORTAL_SESSION_TTL_MS, og så logges der ind
+ * igen. Det gør middlewaren fri for @supabase/ssr i edge-bundlen.
  *
  * Kører i Edge-runtime. Admin-opslaget går derfor gennem fetch mod PostgREST
- * (se admin-access.ts), og SUPABASE_SECRET_KEY skal være sat FØR buildet —
- * se docs/AUTH.md.
+ * (se admin-access.ts), og PORTAL_SESSION_SECRET + SUPABASE_SECRET_KEY skal
+ * være sat FØR buildet — se docs/AUTH.md.
+ *
+ * OPRYDNING: gamle @supabase/ssr-cookies (sb-…-auth-token.0/.1/…) fra før
+ * skiftet slettes på hvert svar, der kommer forbi. De er døde, og de fylder i
+ * hvert requests headers, indtil de er væk.
  * ============================================================================
  */
 
@@ -31,46 +32,27 @@ import { supabaseAuthEnv } from './config';
 const LOGIN_PATH = '/login/';
 
 export async function guardPortalRequest(request: NextRequest): Promise<NextResponse> {
-  let response = NextResponse.next({ request });
+  const response = NextResponse.next({ request });
+  deleteLegacyCookies(request, response);
 
-  let env;
+  const raw = request.cookies.get(PORTAL_SESSION_COOKIE)?.value;
+  if (!raw) return redirectToLogin(request, response);
+
+  let payload;
   try {
-    env = supabaseAuthEnv();
+    payload = await verifyPortalSessionValue(raw);
   } catch (configError) {
     console.error(
-      `${AUTH_LOG_PREFIX} portalen er spærret — Supabase-variablerne mangler:`,
+      `${AUTH_LOG_PREFIX} portalen er spærret — sessionshemmeligheden mangler:`,
       configError instanceof PortalAuthConfigError ? configError.message : configError,
     );
     return redirectToLogin(request, response, 'opsaetning');
   }
-
-  const supabase = createServerClient(env.url, env.publishableKey, {
-    cookies: {
-      getAll: () => request.cookies.getAll(),
-      setAll: (cookiesToSet) => {
-        for (const { name, value } of cookiesToSet) {
-          request.cookies.set(name, value);
-        }
-        response = NextResponse.next({ request });
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
-        }
-      },
-    },
-  });
-
-  const { data, error } = await supabase.auth.getUser();
-
-  if (error && error.name !== 'AuthSessionMissingError') {
-    console.error(`${AUTH_LOG_PREFIX} sessionen kunne ikke verificeres:`, error.message);
-  }
-
-  const user = data.user;
-  if (!user) return redirectToLogin(request, response);
+  if (!payload) return redirectToLogin(request, response);
 
   let erAdmin: boolean;
   try {
-    erAdmin = await isPortalAdmin(user.id);
+    erAdmin = await isPortalAdmin(payload.uid);
   } catch (opslagsFejl) {
     // Fail closed: manglende opsætning OG et fejlet opslag spærrer begge.
     console.error(
@@ -83,7 +65,7 @@ export async function guardPortalRequest(request: NextRequest): Promise<NextResp
   if (!erAdmin) {
     console.warn(
       `${AUTH_LOG_PREFIX} adgang nægtet til ${request.nextUrl.pathname}: ` +
-        `UID ${user.id} har ikke admin-rolle i user_profiles.`,
+        `UID ${payload.uid} har ikke admin-rolle i user_profiles.`,
     );
     return redirectToLogin(request, response, 'ingen-adgang');
   }
@@ -91,10 +73,19 @@ export async function guardPortalRequest(request: NextRequest): Promise<NextResp
   return response;
 }
 
+/** Sæt gamle @supabase/ssr-cookies til sletning på svaret. */
+function deleteLegacyCookies(request: NextRequest, response: NextResponse): void {
+  for (const cookie of request.cookies.getAll()) {
+    if (isLegacySupabaseCookie(cookie.name)) {
+      response.cookies.delete(cookie.name);
+    }
+  }
+}
+
 /**
- * Redirect til login MED de cookies, klienten netop har fornyet. Kopieres de
- * ikke over, taber svaret den nye session — det er den klassiske fælde i
- * Supabase' middleware-mønster.
+ * Redirect til login MED de cookies, svaret allerede har sat — herunder
+ * sletningen af de gamle sb-cookies. Kopieres de ikke over, når oprydningen
+ * aldrig browseren.
  */
 function redirectToLogin(
   request: NextRequest,

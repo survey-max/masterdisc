@@ -1,7 +1,8 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { AUTH_LOG_PREFIX, isPortalAdmin, PortalAuthConfigError } from './admin-access';
-import { createSupabaseServerComponentClient } from './server';
+import { PORTAL_SESSION_COOKIE, verifyPortalSessionValue } from './portal-session';
 
 /**
  * ============================================================================
@@ -9,12 +10,13 @@ import { createSupabaseServerComponentClient } from './server';
  * ============================================================================
  * To ting skal være sande, før portalen må vises:
  *
- *   1. Der er en gyldig Supabase-session. Den verificeres med `getUser()`, som
- *      spørger Supabase' auth-server — ALDRIG med `getSession()`, der blot
- *      læser cookien og derfor kan forfalskes.
+ *   1. Der er en gyldig portal-session: cookien i PORTAL_SESSION_COOKIE
+ *      verificeres mod HMAC-signaturen og sit udløb (portal-session.ts).
+ *      Cookien er httpOnly og signeret server-side — den kan ikke forfalskes
+ *      eller læses af klientkode.
  *   2. Brugeren har admin-rolle (`admin`/`ejer`) i `public.user_profiles` og er
- *      ikke disabled. Projektet er delt med en anden app, så et gyldigt login
- *      er i sig selv ingen adgang.
+ *      ikke disabled. Rollen slås op ved HVERT kald — cookien beviser kun
+ *      identitet, aldrig privilegium.
  *
  * Middlewaren laver samme tjek foran hver /jobmatch/**-request. Det her er
  * laget under: sider, route handlers og server actions spørger selv, så en
@@ -29,27 +31,35 @@ export interface PortalSessionUser {
 }
 
 /**
- * Den indloggede, tilladte bruger — eller null. Alle tre grunde til null
- * (ingen session, ingen admin-rolle, fejlet/manglende opslag) logges
- * server-side. Ingen af dem giver adgang.
+ * Den indloggede, tilladte bruger — eller null. Alle grunde til null
+ * (ingen/ugyldig/udløbet cookie, ingen admin-rolle, fejlet/manglende opslag)
+ * logges server-side. Ingen af dem giver adgang.
  */
 export async function getPortalSessionUser(): Promise<PortalSessionUser | null> {
-  const supabase = await createSupabaseServerComponentClient();
-  const { data, error } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const raw = cookieStore.get(PORTAL_SESSION_COOKIE)?.value;
+  if (!raw) return null;
 
-  if (error) {
-    // AuthSessionMissingError er hverdag (ikke logget ind endnu) og støjer kun.
-    if (error.name !== 'AuthSessionMissingError') {
-      console.error(`${AUTH_LOG_PREFIX} kunne ikke verificere sessionen:`, error.message);
-    }
+  let payload;
+  try {
+    payload = await verifyPortalSessionValue(raw);
+  } catch (configError) {
+    console.error(
+      `${AUTH_LOG_PREFIX} adgang nægtet — sessionshemmeligheden er ikke sat op:`,
+      configError instanceof PortalAuthConfigError ? configError.message : configError,
+    );
     return null;
   }
-  const user = data.user;
-  if (!user) return null;
+  if (!payload) {
+    // Udløbet er hverdag; en forkert signatur er det ikke. Begge afvises ens,
+    // og cookien skelner ikke — loggen her er nok til at finde mønstre.
+    console.warn(`${AUTH_LOG_PREFIX} afvist: ugyldig eller udløbet portal-session.`);
+    return null;
+  }
 
   let erAdmin: boolean;
   try {
-    erAdmin = await isPortalAdmin(user.id);
+    erAdmin = await isPortalAdmin(payload.uid);
   } catch (opslagsFejl) {
     // Fail closed: både manglende opsætning og et fejlet opslag er "nej".
     console.error(
@@ -61,11 +71,11 @@ export async function getPortalSessionUser(): Promise<PortalSessionUser | null> 
 
   if (!erAdmin) {
     console.warn(
-      `${AUTH_LOG_PREFIX} adgang nægtet: UID ${user.id} har ikke admin-rolle i user_profiles.`,
+      `${AUTH_LOG_PREFIX} adgang nægtet: UID ${payload.uid} har ikke admin-rolle i user_profiles.`,
     );
     return null;
   }
-  return { id: user.id, email: user.email ?? null };
+  return { id: payload.uid, email: payload.email };
 }
 
 /**
