@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
      */
     serverActions: {
       allowedOrigins: ['masterdisc.dk', 'www.masterdisc.dk'],
+      /**
+       * Arkivet tager PDF'er op til 25 MB (MAX_ARCHIVE_BYTES i
+       * lib/jobmatch/archive-input.ts), men Next.js afviser server action-bodies
+       * over 1 MB som standard — uploaden fejlede, før uploadRapportAction
+       * overhovedet blev kaldt. 30 MB = filgrænsen + multipart-overhead.
+       */
+      bodySizeLimit: '30mb',
     },
   },
 
