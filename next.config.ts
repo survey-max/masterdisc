@@ -41,6 +41,31 @@ const nextConfig: NextConfig = {
    * Permanent (308): stierne er endeligt afløst. Rod-/ er bevidst IKKE med —
    * den tilhører nu portalens forside.
    */
+  /**
+   * Sikkerhedsheaders. Globalt: nosniff (ingen MIME-gætteri) og en stram
+   * referrer-politik. KUN på portalen og login: X-Frame-Options DENY — intet
+   * legitimt indlejrer adminportalen i en iframe, og DENY lukker clickjacking.
+   * /profil/** holdes udenfor: den statiske DISC-app og surveyen kan være
+   * indlejret eksternt, og det må en portal-hærdning ikke knække.
+   */
+  async headers() {
+    const portalOnly = [
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+    ];
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+        ],
+      },
+      { source: '/jobmatch/:path*', headers: portalOnly },
+      { source: '/login/:path*', headers: portalOnly },
+    ];
+  },
+
   async redirects() {
     return [
       { source: '/survey', destination: '/profil/survey/', permanent: true },

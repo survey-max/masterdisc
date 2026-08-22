@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 
 import {
   AUTH_LOG_PREFIX,
-  isPortalAdmin,
+  hasPortalAccess,
   portalAdminAccessEnv,
 } from '@/lib/supabase/auth/admin-access';
 import { supabaseAuthEnv } from '@/lib/supabase/auth/config';
@@ -40,8 +40,9 @@ import type { LoginState } from './login-state';
  *      sessionshemmeligheden, logges der ind på ingen måde (fail closed,
  *      uanset om kodeordet er rigtigt)
  *   2. Supabase verificerer email + adgangskode
- *   3. UID'et slås op i user_profiles og skal have rollen `admin` eller `ejer`
- *      (og ikke være disabled); ellers "ingen adgang" — og ingen cookie
+ *   3. UID'et slås op i user_profiles og skal have rollen `admin`/`ejer` ELLER
+ *      en egen rolle med Jobmatch slået til (og ikke være disabled); ellers
+ *      "ingen adgang" — og ingen cookie
  *   4. Supabase-sessionen trækkes tilbage (signOut), og portal-cookien sættes
  * ============================================================================
  */
@@ -108,9 +109,9 @@ async function forsoegLogin(email: string, kode: string): Promise<LoginState & {
     return { fejl: FEJL_GENEREL };
   }
 
-  let erAdmin: boolean;
+  let harAdgang: boolean;
   try {
-    erAdmin = await isPortalAdmin(user.id);
+    harAdgang = await hasPortalAccess(user.id);
   } catch (opslagsFejl) {
     // Fail closed: fejler opslaget, behandles det som "ingen adgang".
     console.error(
@@ -126,9 +127,10 @@ async function forsoegLogin(email: string, kode: string): Promise<LoginState & {
   // være gyldigt hos Supabase.
   await traekSupabaseSessionTilbage(supabase, user.id);
 
-  if (!erAdmin) {
+  if (!harAdgang) {
     console.warn(
-      `${AUTH_LOG_PREFIX} afvist login: UID ${user.id} (${email}) har ikke admin-rolle i user_profiles.`,
+      `${AUTH_LOG_PREFIX} afvist login: UID ${user.id} (${email}) har hverken admin-rolle ` +
+        'eller Jobmatch-rettighed (egen rolle) i user_profiles.',
     );
     return { fejl: FEJL_INGEN_ADGANG };
   }

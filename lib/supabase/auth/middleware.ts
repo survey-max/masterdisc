@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { AUTH_LOG_PREFIX, isPortalAdmin, PortalAuthConfigError } from './admin-access';
+import { AUTH_LOG_PREFIX, hasPortalAccess, PortalAuthConfigError } from './admin-access';
 import {
   isLegacySupabaseCookie,
   PORTAL_SESSION_COOKIE,
@@ -11,8 +11,9 @@ import {
  * ============================================================================
  * MIDDLEWAREN — DEN FØRSTE PORT FORAN /jobmatch/**
  * ============================================================================
- * Verificerer portal-sessionscookien (HMAC + udløb) og slår admin-rollen op i
- * user_profiles. Gyldig cookie OG admin-rolle, ellers /login/.
+ * Verificerer portal-sessionscookien (HMAC + udløb) og slår adgangen op i
+ * user_profiles: admin-rolle ELLER egen rolle med Jobmatch slået til
+ * (admin-access.ts). Gyldig cookie OG adgang, ellers /login/.
  *
  * Der er ingen Supabase-session at forny længere: cookien er portalens egen og
  * fornys ikke — den udløber efter PORTAL_SESSION_TTL_MS, og så logges der ind
@@ -50,9 +51,9 @@ export async function guardPortalRequest(request: NextRequest): Promise<NextResp
   }
   if (!payload) return redirectToLogin(request, response);
 
-  let erAdmin: boolean;
+  let harAdgang: boolean;
   try {
-    erAdmin = await isPortalAdmin(payload.uid);
+    harAdgang = await hasPortalAccess(payload.uid);
   } catch (opslagsFejl) {
     // Fail closed: manglende opsætning OG et fejlet opslag spærrer begge.
     console.error(
@@ -62,10 +63,10 @@ export async function guardPortalRequest(request: NextRequest): Promise<NextResp
     return redirectToLogin(request, response, 'opsaetning');
   }
 
-  if (!erAdmin) {
+  if (!harAdgang) {
     console.warn(
       `${AUTH_LOG_PREFIX} adgang nægtet til ${request.nextUrl.pathname}: ` +
-        `UID ${payload.uid} har ikke admin-rolle i user_profiles.`,
+        `UID ${payload.uid} har hverken admin-rolle eller Jobmatch-rettighed i user_profiles.`,
     );
     return redirectToLogin(request, response, 'ingen-adgang');
   }

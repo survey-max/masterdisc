@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { AUTH_LOG_PREFIX, isPortalAdmin, PortalAuthConfigError } from './admin-access';
+import { AUTH_LOG_PREFIX, hasPortalAccess, PortalAuthConfigError } from './admin-access';
 import { PORTAL_SESSION_COOKIE, verifyPortalSessionValue } from './portal-session';
 
 /**
@@ -14,8 +14,9 @@ import { PORTAL_SESSION_COOKIE, verifyPortalSessionValue } from './portal-sessio
  *      verificeres mod HMAC-signaturen og sit udløb (portal-session.ts).
  *      Cookien er httpOnly og signeret server-side — den kan ikke forfalskes
  *      eller læses af klientkode.
- *   2. Brugeren har admin-rolle (`admin`/`ejer`) i `public.user_profiles` og er
- *      ikke disabled. Rollen slås op ved HVERT kald — cookien beviser kun
+ *   2. Brugeren har adgang i `public.user_profiles`: admin-rolle (`admin`/`ejer`)
+ *      ELLER en egen rolle med Jobmatch slået til (admin-access.ts) — og er
+ *      ikke disabled. Det slås op ved HVERT kald — cookien beviser kun
  *      identitet, aldrig privilegium.
  *
  * Middlewaren laver samme tjek foran hver /jobmatch/**-request. Det her er
@@ -57,9 +58,9 @@ export async function getPortalSessionUser(): Promise<PortalSessionUser | null> 
     return null;
   }
 
-  let erAdmin: boolean;
+  let harAdgang: boolean;
   try {
-    erAdmin = await isPortalAdmin(payload.uid);
+    harAdgang = await hasPortalAccess(payload.uid);
   } catch (opslagsFejl) {
     // Fail closed: både manglende opsætning og et fejlet opslag er "nej".
     console.error(
@@ -69,9 +70,10 @@ export async function getPortalSessionUser(): Promise<PortalSessionUser | null> 
     return null;
   }
 
-  if (!erAdmin) {
+  if (!harAdgang) {
     console.warn(
-      `${AUTH_LOG_PREFIX} adgang nægtet: UID ${payload.uid} har ikke admin-rolle i user_profiles.`,
+      `${AUTH_LOG_PREFIX} adgang nægtet: UID ${payload.uid} har hverken admin-rolle eller ` +
+        'Jobmatch-rettighed (egen rolle) i user_profiles.',
     );
     return null;
   }

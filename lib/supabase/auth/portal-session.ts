@@ -27,7 +27,15 @@
 
 import { PortalAuthConfigError } from './admin-access';
 
-export const PORTAL_SESSION_COOKIE = 'portal-session';
+/**
+ * `__Host-`-præfikset håndhæves af BROWSEREN: en cookie med det navn
+ * accepteres kun med Secure, Path=/ og uden Domain-attribut. Det betyder, at
+ * hverken et subdomæne eller en http-forbindelse nogensinde kan plante eller
+ * overskygge portalens sessionscookie (cookie tossing). Kun i produktion —
+ * lokal dev kører over http, hvor præfikset ville afvise cookien.
+ */
+export const PORTAL_SESSION_COOKIE =
+  process.env.NODE_ENV === 'production' ? '__Host-portal-session' : 'portal-session';
 
 /** Samme levetid som coachersuniversed's sessioner. */
 export const PORTAL_SESSION_TTL_MS = 14 * 24 * 60 * 60 * 1000;
@@ -54,7 +62,12 @@ export function portalSessionSecret(): string {
   return secret;
 }
 
-/** Cookie-attributterne. httpOnly er selve pointen: JavaScript kan ikke læse den. */
+/**
+ * Cookie-attributterne. httpOnly er selve pointen: JavaScript kan ikke læse
+ * den. Path=/ og INGEN domain-attribut er krav fra `__Host-`-præfikset og må
+ * ikke ændres. Bruges også ved sletning (med maxAge 0) — en `__Host-`-cookie
+ * kan kun slettes af et Set-Cookie, der selv opfylder præfiksets krav.
+ */
 export function portalSessionCookieOptions() {
   return {
     httpOnly: true,

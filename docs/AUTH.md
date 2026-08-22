@@ -6,10 +6,18 @@ Portalens jobmatch-del ligger bag login. Adgang kræver to ting, ikke én:
    cookie (`portal-session`). Supabase Auth bruges KUN i selve login-øjeblikket
    til at verificere email + adgangskode; Supabase-sessionen trækkes tilbage
    med det samme og gemmes aldrig i cookies.
-2. **At brugeren har admin-rolle i `public.user_profiles`** — dvs. en profil med
-   `auth_user_id` = brugerens auth-UID, rollen `admin` eller `ejer` og uden
-   `disabled`-markering. Det er samme tabel og samme rollebegreb som
-   coachersuniversed's `ADMIN_ROLES` (lib/auth/guard.ts i det andet repo).
+2. **At brugeren har adgang i `public.user_profiles`** — dvs. en profil med
+   `auth_user_id` = brugerens auth-UID, uden `disabled`-markering, og ENTEN
+   rollen `admin`/`ejer` (samme rollebegreb som coachersuniversed's
+   `ADMIN_ROLES`, lib/auth/guard.ts i det andet repo) ELLER en **egen rolle
+   med Jobmatch slået til** (siden 2026-08-22): `user_profiles.custom_role_id`
+   peger på en række i `public.custom_roles`, hvis
+   `permissions.modules.jobmatch` er `true`. Egne roller oprettes og tildeles i
+   coachersuniversed under Indstillinger → Brugere → Roller (toggle "Jobmatch").
+   Rolle-opslaget er et separat, fejltolerant kald
+   (`hasJobmatchRolePermission` i `lib/supabase/auth/admin-access.ts`): er
+   migrationen `20260822_custom_roles` ikke kørt i det delte projekt, svarer det
+   blot "nej" og admin-adgangen er upåvirket.
 
 Punkt 2 er ikke overforsigtighed. Supabase-projektet er **delt** med
 coachersuniversed, så `auth.users` rummer mange brugere, der intet har med
@@ -40,8 +48,9 @@ fejlen skrives i serverloggen med `[portal-auth]` foran. En fejl må aldrig kunn
 læses som "så lukker vi alle ind".
 
 Hvem der har adgang, styres i coachersuniversed's brugeradministration: giv
-brugeren rollen `admin` eller `ejer` i `user_profiles`, og adgangen følger med —
-ingen deploy, intet nyt build.
+brugeren rollen `admin` eller `ejer` i `user_profiles` — eller tildel en egen
+rolle med Jobmatch slået til — og adgangen følger med; ingen deploy, intet nyt
+build.
 
 > Middlewaren kører i Edge-runtime. Opslaget i `user_profiles` sker derfor med
 > `fetch` direkte mod PostgREST (`lib/supabase/auth/admin-access.ts`), ikke via
@@ -69,7 +78,7 @@ browser ──► middleware.ts ──► guardPortalRequest()      verificér c
 | `lib/supabase/auth/middleware.ts` | selve tjekket + oprydning af gamle @supabase/ssr-cookies |
 | `lib/supabase/auth/portal-session.ts` | sessionscookien: HMAC-signering, verifikation, cookie-attributter |
 | `lib/supabase/auth/session.ts` | `getPortalSessionUser` / `requirePortalAccess` / `requirePortalSession` |
-| `lib/supabase/auth/admin-access.ts` | admin-tjekket mod `public.user_profiles` (rolle `admin`/`ejer`, ikke disabled) — fail closed |
+| `lib/supabase/auth/admin-access.ts` | adgangstjekket mod `public.user_profiles`: `isPortalAdmin` (rolle `admin`/`ejer`, ikke disabled — fail closed) + `hasJobmatchRolePermission` (egen rolle med Jobmatch-toggle — fejl = nej) samlet i `hasPortalAccess` |
 | `lib/supabase/auth/config.ts` | de offentlige Supabase-variabler til login-verifikationen |
 | `app/login/` | login-siden og server action'en, der logger ind |
 | `app/jobmatch/layout.tsx` | adgangstjek for alle sider under `/jobmatch/**` |
@@ -100,7 +109,10 @@ afviser alle requests med headers over 16 KB (`494 REQUEST_HEADER_TOO_LARGE`)
 FØR portalens kode kører — hele domænet var dødt for den bruger, og portalen
 kunne ikke engang rette det selv. Portalens egen cookie er nogle få hundrede
 bytes med fast indhold (`{v, uid, email, exp}`), er httpOnly (JavaScript kan
-ikke læse den) og indeholder intet brugerredigerbart. Mønsteret er det samme
+ikke læse den) og indeholder intet brugerredigerbart. I produktion hedder den
+`__Host-portal-session`: præfikset håndhæves af browseren og betyder, at
+cookien kun kan sættes med Secure + Path=/ og uden Domain — et subdomæne eller
+en http-forbindelse kan aldrig plante eller overskygge den. Mønsteret er det samme
 som coachersuniversed's session (lib/auth/session.ts i det andet repo).
 Middlewaren og login/log ud sletter desuden gamle `sb-…`-cookies, når de ser dem.
 
@@ -109,7 +121,7 @@ Middlewaren og login/log ud sletter desuden gamle `sb-…`-cookies, når de ser 
 | Situation | Besked | Log |
 |---|---|---|
 | Forkert email/adgangskode | "Forkert email eller adgangskode" | `[portal-auth] mislykket login for <email>: invalid_credentials …` |
-| Gyldigt login uden admin-rolle | "Du har ikke adgang til portalen" — og der sættes ingen cookie | `[portal-auth] afvist login: UID <uid> … har ikke admin-rolle i user_profiles.` |
+| Gyldigt login uden adgang | "Du har ikke adgang til portalen" — og der sættes ingen cookie | `[portal-auth] afvist login: UID <uid> … har hverken admin-rolle eller Jobmatch-rettighed (egen rolle) i user_profiles.` |
 | Opsætningen mangler eller opslaget fejler | generel dansk fejl | `[portal-auth] login spærret — admin-tjekket er ikke sat op: …` / `[portal-auth] admin-tjekket fejlede for UID …` |
 | Uventet fejl | generel dansk fejl | `[portal-auth] uventet fejl under login: …` |
 | Request mod `/jobmatch/**` uden adgang | sendes til `/login/` | `[portal-auth] adgang nægtet til <sti>: UID … ` |

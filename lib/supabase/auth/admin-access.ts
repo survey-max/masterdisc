@@ -66,12 +66,24 @@ export function portalAdminAccessEnv(): AdminAccessEnv {
   return { url, secretKey };
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * Har auth-UID'et en profil i `public.user_profiles` med admin-rolle og uden
  * `disabled`? Kaster PortalAuthConfigError ved manglende opsætning og Error,
  * hvis opslaget fejler — begge dele skal kalderen behandle som "ingen adgang".
+ *
+ * UID'et SKAL være et UUID. Kilderne er i dag begge betroede (Supabase' eget
+ * user.id og payload'en fra den signerede cookie), men værdien ender i et
+ * PostgREST-filter — formkravet her gør, at en fremtidig kalder med utroet
+ * input aldrig kan smugle filtersyntaks med. Fail closed: forkert form = nej.
  */
 export async function isPortalAdmin(userId: string): Promise<boolean> {
+  if (!UUID_PATTERN.test(userId)) {
+    console.warn(`${AUTH_LOG_PREFIX} adgang nægtet: UID har ikke UUID-form.`);
+    return false;
+  }
+
   const { url, secretKey } = portalAdminAccessEnv();
 
   const query = new URLSearchParams({
@@ -103,4 +115,77 @@ export async function isPortalAdmin(userId: string): Promise<boolean> {
   if (!profile) return false;
 
   return ADMIN_ROLES.includes(profile.role ?? '') && profile.disabled !== true;
+}
+
+/**
+ * ============================================================================
+ * JOBMATCH-RETTIGHEDEN PÅ EGNE ROLLER (coachersuniversed, 2026-08-22)
+ * ============================================================================
+ * coachersuniversed har "egne roller" (tabel `public.custom_roles`, kolonne
+ * `user_profiles.custom_role_id`, migration 20260822_custom_roles) med et
+ * Jobmatch-toggle: `permissions.modules.jobmatch === true`. En bruger med en
+ * sådan rolle må se portalen, selv om grundrollen ikke er admin/ejer.
+ *
+ * Opslaget er et SEPARAT kald, så det aldrig kan trække admin-tjekket ned:
+ * før migrationen er kørt, svarer PostgREST 400 på den ukendte kolonne, og
+ * det må ikke spærre admins. Svaret her er derfor "nej" ved ALLE fejl, med
+ * log — aldrig et kast (modsat isPortalAdmin, hvor fejl = afvisning).
+ */
+export const JOBMATCH_MODULE_KEY = 'jobmatch';
+
+export async function hasJobmatchRolePermission(userId: string): Promise<boolean> {
+  if (!UUID_PATTERN.test(userId)) return false;
+
+  const { url, secretKey } = portalAdminAccessEnv();
+
+  const query = new URLSearchParams({
+    // Embedding via FK user_profiles.custom_role_id -> custom_roles.id
+    select: 'disabled,custom_role_id,custom_roles(permissions)',
+    auth_user_id: `eq.${userId}`,
+    limit: '1',
+  });
+
+  let response: Response;
+  try {
+    response = await fetch(`${url}/rest/v1/user_profiles?${query}`, {
+      headers: {
+        apikey: secretKey,
+        authorization: `Bearer ${secretKey}`,
+        'accept-profile': 'public',
+      },
+      cache: 'no-store',
+    });
+  } catch (error) {
+    console.warn(`${AUTH_LOG_PREFIX} jobmatch-rolleopslag fejlede for UID ${userId}:`, error);
+    return false;
+  }
+
+  if (!response.ok) {
+    // 400 = kolonnen/tabellen findes ikke endnu (migration 20260822 ikke kørt)
+    console.warn(
+      `${AUTH_LOG_PREFIX} jobmatch-rolleopslag for UID ${userId} svarede ${response.status} ` +
+        '(er migration 20260822_custom_roles kørt i det delte projekt?).',
+    );
+    return false;
+  }
+
+  const rows = (await response.json()) as Array<{
+    disabled?: boolean;
+    custom_role_id?: string | null;
+    custom_roles?: { permissions?: { modules?: Record<string, unknown> } } | null;
+  }>;
+  const profile = rows[0];
+  if (!profile || profile.disabled === true || !profile.custom_role_id) return false;
+
+  return profile.custom_roles?.permissions?.modules?.[JOBMATCH_MODULE_KEY] === true;
+}
+
+/**
+ * Må auth-UID'et se portalen? Admin/ejer i user_profiles ELLER en egen rolle
+ * med Jobmatch slået til. Admin-tjekket kaster stadig ved fejl (fail closed);
+ * rolle-tjekket er kun et "ja" oveni og kan aldrig give et falsk "ja" ved fejl.
+ */
+export async function hasPortalAccess(userId: string): Promise<boolean> {
+  if (await isPortalAdmin(userId)) return true;
+  return hasJobmatchRolePermission(userId);
 }

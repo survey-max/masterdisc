@@ -7,6 +7,7 @@ import { AUTH_LOG_PREFIX } from '@/lib/supabase/auth/admin-access';
 import {
   isLegacySupabaseCookie,
   PORTAL_SESSION_COOKIE,
+  portalSessionCookieOptions,
 } from '@/lib/supabase/auth/portal-session';
 
 /**
@@ -20,7 +21,9 @@ import {
  */
 export async function logUdAction(): Promise<{ fejl: string } | void> {
   const cookieStore = await cookies();
-  cookieStore.delete(PORTAL_SESSION_COOKIE);
+  // Sletning via set + maxAge 0: en __Host--cookie kan kun overskrives af et
+  // Set-Cookie, der selv har Secure og Path=/ — en nøgen delete() har ikke det.
+  cookieStore.set(PORTAL_SESSION_COOKIE, '', { ...portalSessionCookieOptions(), maxAge: 0 });
   for (const cookie of cookieStore.getAll()) {
     if (isLegacySupabaseCookie(cookie.name)) cookieStore.delete(cookie.name);
   }
